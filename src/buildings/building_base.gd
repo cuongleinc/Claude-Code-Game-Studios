@@ -79,6 +79,88 @@ func build_visual() -> void:
 		roof_node.position = Vector3(0.0, b_size.y + 0.6, 0.0)
 		visual_mesh.add_child(roof_node)
 
+	# Architectural details
+	if building_type == "town_center":
+		# Front Arched Doorway
+		var door = MeshInstance3D.new()
+		var dbox = BoxMesh.new()
+		dbox.size = Vector3(1.4, 2.0, 0.2)
+		var dmat = StandardMaterial3D.new()
+		dmat.albedo_color = Color(0.32, 0.2, 0.12)
+		door.mesh = dbox
+		door.material_override = dmat
+		door.position = Vector3(0.0, 1.0, b_size.z * 0.5 + 0.1)
+		visual_mesh.add_child(door)
+
+		# Stone corner pillars
+		var pillar_mat = StandardMaterial3D.new()
+		pillar_mat.albedo_color = Color(0.68, 0.65, 0.62)
+		for px in [-b_size.x * 0.5, b_size.x * 0.5]:
+			for pz in [-b_size.z * 0.5, b_size.z * 0.5]:
+				var pil = MeshInstance3D.new()
+				var pbox = BoxMesh.new()
+				pbox.size = Vector3(0.6, b_size.y + 0.4, 0.6)
+				pil.mesh = pbox
+				pil.material_override = pillar_mat
+				pil.position = Vector3(px, (b_size.y + 0.4) * 0.5, pz)
+				visual_mesh.add_child(pil)
+
+		# Rooftop Watchtower Spire & Royal Flag
+		var spire = MeshInstance3D.new()
+		var sbox = BoxMesh.new()
+		sbox.size = Vector3(1.4, 1.8, 1.4)
+		var smat = StandardMaterial3D.new()
+		smat.albedo_color = Color(0.72, 0.68, 0.64)
+		spire.mesh = sbox
+		spire.material_override = smat
+		spire.position = Vector3(0.0, b_size.y + 1.2, 0.0)
+		visual_mesh.add_child(spire)
+
+		var pole = MeshInstance3D.new()
+		var pcyl = CylinderMesh.new()
+		pcyl.top_radius = 0.05
+		pcyl.bottom_radius = 0.05
+		pcyl.height = 2.4
+		var pol_mat = StandardMaterial3D.new()
+		pol_mat.albedo_color = Color(0.85, 0.75, 0.25)
+		pole.mesh = pcyl
+		pole.material_override = pol_mat
+		pole.position = Vector3(0.0, b_size.y + 2.8, 0.0)
+		visual_mesh.add_child(pole)
+
+		var flag = MeshInstance3D.new()
+		var fbox = BoxMesh.new()
+		fbox.size = Vector3(1.2, 0.7, 0.06)
+		var fmat = StandardMaterial3D.new()
+		fmat.albedo_color = Color(0.2, 0.5, 0.95) if team == "player" else Color(0.85, 0.2, 0.2)
+		flag.mesh = fbox
+		flag.material_override = fmat
+		flag.position = Vector3(0.6, b_size.y + 3.2, 0.0)
+		visual_mesh.add_child(flag)
+
+	elif building_type == "house":
+		# Front door
+		var door = MeshInstance3D.new()
+		var dbox = BoxMesh.new()
+		dbox.size = Vector3(0.8, 1.4, 0.15)
+		var dmat = StandardMaterial3D.new()
+		dmat.albedo_color = Color(0.35, 0.22, 0.12)
+		door.mesh = dbox
+		door.material_override = dmat
+		door.position = Vector3(0.0, 0.7, b_size.z * 0.5 + 0.08)
+		visual_mesh.add_child(door)
+
+		# Stone chimney
+		var chimney = MeshInstance3D.new()
+		var cbox = BoxMesh.new()
+		cbox.size = Vector3(0.5, 1.5, 0.5)
+		var cmat = StandardMaterial3D.new()
+		cmat.albedo_color = Color(0.55, 0.55, 0.58)
+		chimney.mesh = cbox
+		chimney.material_override = cmat
+		chimney.position = Vector3(b_size.x * 0.35, b_size.y + 0.9, -b_size.z * 0.2)
+		visual_mesh.add_child(chimney)
+
 	# Special Harbor Dock Extension
 	if building_type == "harbor":
 		var dock_mesh = BoxMesh.new()
@@ -216,6 +298,10 @@ func queue_unit(type: String) -> bool:
 
 func take_damage(amount: int) -> void:
 	current_hp -= amount
+	if is_inside_tree() and get_parent():
+		var ft = FloatingText.new()
+		get_parent().add_child(ft)
+		ft.setup(global_position + Vector3(0.0, 3.2, 0.0), "-" + str(amount), Color(1.0, 0.45, 0.15))
 	if current_hp <= 0:
 		current_hp = 0
 		die()

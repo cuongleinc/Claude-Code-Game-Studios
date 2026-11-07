@@ -19,6 +19,7 @@ func _ready() -> void:
 	hud.build_requested.connect(_on_build_requested)
 	hud.train_unit_requested.connect(_on_train_unit_requested)
 	hud.age_advance_requested.connect(_on_age_advance_requested)
+	hud.minimap_clicked.connect(_on_minimap_clicked)
 
 	# Connect building placement signal
 	building_placement.building_placed.connect(_on_building_placed)
@@ -52,6 +53,7 @@ func spawn_player_starter_base() -> void:
 	tc.setup("town_center", island_world.island1_center, "player", true)
 	tc.add_to_group("player_buildings")
 	tc.unit_trained.connect(_on_unit_trained)
+	game_manager.select_entity(tc)
 
 	# 3 Starting Villagers
 	var offsets = [
@@ -298,3 +300,6 @@ func _on_unit_trained(unit_type: String, spawn_pos: Vector3) -> void:
 
 func _on_age_advance_requested() -> void:
 	game_manager.advance_to_next_age()
+
+func _on_minimap_clicked(world_pos: Vector3) -> void:
+	camera_controller.global_position = Vector3(world_pos.x, 0.0, world_pos.z)

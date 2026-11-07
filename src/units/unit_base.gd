@@ -44,19 +44,30 @@ func build_visual() -> void:
 	visual_mesh.name = "Visual"
 	add_child(visual_mesh)
 
-	# Basic capsule body
-	var body_mesh = CapsuleMesh.new()
-	body_mesh.radius = 0.35
-	body_mesh.height = 1.4
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(0.2, 0.45, 0.85) if team == "player" else Color(0.85, 0.25, 0.2)
-	mat.roughness = 0.6
+	# Torso / Tunic
+	var tunic_mesh = CylinderMesh.new()
+	tunic_mesh.top_radius = 0.3
+	tunic_mesh.bottom_radius = 0.36
+	tunic_mesh.height = 0.8
+	var t_mat = StandardMaterial3D.new()
+	t_mat.albedo_color = Color(0.2, 0.45, 0.85) if team == "player" else Color(0.85, 0.25, 0.2)
+	var tunic_node = MeshInstance3D.new()
+	tunic_node.mesh = tunic_mesh
+	tunic_node.material_override = t_mat
+	tunic_node.position = Vector3(0.0, 0.5, 0.0)
+	visual_mesh.add_child(tunic_node)
 
-	var body_node = MeshInstance3D.new()
-	body_node.mesh = body_mesh
-	body_node.material_override = mat
-	body_node.position = Vector3(0.0, 0.7, 0.0)
-	visual_mesh.add_child(body_node)
+	# Head with skin tone
+	var head_mesh = SphereMesh.new()
+	head_mesh.radius = 0.26
+	head_mesh.height = 0.52
+	var h_mat = StandardMaterial3D.new()
+	h_mat.albedo_color = Color(0.96, 0.82, 0.72)
+	var head_node = MeshInstance3D.new()
+	head_node.mesh = head_mesh
+	head_node.material_override = h_mat
+	head_node.position = Vector3(0.0, 1.1, 0.0)
+	visual_mesh.add_child(head_node)
 
 func build_collision() -> void:
 	var col = CollisionShape3D.new()
@@ -183,6 +194,10 @@ func look_at_safe(target_pos: Vector3) -> void:
 func take_damage(amount: int) -> void:
 	current_hp -= amount
 	update_hp_bar()
+	if is_inside_tree() and get_parent():
+		var ft = FloatingText.new()
+		get_parent().add_child(ft)
+		ft.setup(global_position + Vector3(0.0, 1.8, 0.0), "-" + str(amount), Color(1.0, 0.25, 0.2))
 	if current_hp <= 0:
 		current_hp = 0
 		die()

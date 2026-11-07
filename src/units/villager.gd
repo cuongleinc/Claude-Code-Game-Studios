@@ -17,6 +17,31 @@ func _ready() -> void:
 	build_villager_visual()
 
 func build_villager_visual() -> void:
+	# Straw cone hat
+	var hat = MeshInstance3D.new()
+	var cone = CylinderMesh.new()
+	cone.top_radius = 0.04
+	cone.bottom_radius = 0.44
+	cone.height = 0.22
+	var hmat = StandardMaterial3D.new()
+	hmat.albedo_color = Color(0.85, 0.75, 0.42)
+	hat.mesh = cone
+	hat.material_override = hmat
+	hat.position = Vector3(0.0, 1.34, 0.0)
+	visual_mesh.add_child(hat)
+
+	# Woodcutter small axe in hand
+	var axe = MeshInstance3D.new()
+	var abox = BoxMesh.new()
+	abox.size = Vector3(0.08, 0.55, 0.08)
+	var amat = StandardMaterial3D.new()
+	amat.albedo_color = Color(0.45, 0.3, 0.15)
+	axe.mesh = abox
+	axe.material_override = amat
+	axe.position = Vector3(0.35, 0.5, 0.1)
+	axe.rotation_degrees.x = 25.0
+	visual_mesh.add_child(axe)
+
 	# Add backpack indicator
 	backpack_mesh = MeshInstance3D.new()
 	var box = BoxMesh.new()

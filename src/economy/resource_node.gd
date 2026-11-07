@@ -37,18 +37,31 @@ func build_visual() -> void:
 			trunk.position = Vector3(0.0, 0.8, 0.0)
 			add_child(trunk)
 
-			# Foliage cone
-			var foliage = MeshInstance3D.new()
-			var cone_mesh = CylinderMesh.new()
-			cone_mesh.top_radius = 0.0
-			cone_mesh.bottom_radius = 1.4
-			cone_mesh.height = 2.4
+			# Lower Foliage cone
+			var foliage1 = MeshInstance3D.new()
+			var cone_mesh1 = CylinderMesh.new()
+			cone_mesh1.top_radius = 0.0
+			cone_mesh1.bottom_radius = 1.45
+			cone_mesh1.height = 1.8
 			var foliage_mat = StandardMaterial3D.new()
 			foliage_mat.albedo_color = Color(0.18, 0.52, 0.22)
-			foliage.mesh = cone_mesh
-			foliage.material_override = foliage_mat
-			foliage.position = Vector3(0.0, 2.2, 0.0)
-			add_child(foliage)
+			foliage1.mesh = cone_mesh1
+			foliage1.material_override = foliage_mat
+			foliage1.position = Vector3(0.0, 1.8, 0.0)
+			add_child(foliage1)
+
+			# Upper Foliage cone
+			var foliage2 = MeshInstance3D.new()
+			var cone_mesh2 = CylinderMesh.new()
+			cone_mesh2.top_radius = 0.0
+			cone_mesh2.bottom_radius = 1.05
+			cone_mesh2.height = 1.6
+			var foliage_mat2 = StandardMaterial3D.new()
+			foliage_mat2.albedo_color = Color(0.24, 0.62, 0.28)
+			foliage2.mesh = cone_mesh2
+			foliage2.material_override = foliage_mat2
+			foliage2.position = Vector3(0.0, 2.7, 0.0)
+			add_child(foliage2)
 
 		"stone":
 			var boulder = MeshInstance3D.new()
