@@ -19,6 +19,8 @@ var training_queue: Array[String] = []
 var training_timer: float = 0.0
 var training_time_required: float = 4.0
 var farm_timer: float = 0.0
+var tower_attack_timer: float = 0.0
+
 
 func setup(type: String, pos: Vector3, p_team: String = "player", constructed: bool = true) -> void:
 	building_type = type
@@ -144,7 +146,12 @@ func _process(delta: float) -> void:
 			if GameManager.instance:
 				GameManager.instance.add_resource("food", 5)
 
+	# Guard Tower defense
+	if building_type == "guard_tower":
+		handle_tower_defense(delta)
+
 	# Unit training queue
+
 	if training_queue.size() > 0:
 		training_timer += delta
 		if training_timer >= training_time_required:
@@ -153,7 +160,21 @@ func _process(delta: float) -> void:
 			var spawn_offset = Vector3(3.0, 0.5, 0.0)
 			emit_signal("unit_trained", trained, global_position + spawn_offset)
 
+func handle_tower_defense(delta: float) -> void:
+	tower_attack_timer += delta
+	if tower_attack_timer >= 1.6:
+		tower_attack_timer = 0.0
+		var target_group = "enemy_units" if team == "player" else "player_units"
+		var potential_targets = get_tree().get_nodes_in_group(target_group)
+		for t in potential_targets:
+			if is_instance_valid(t) and global_position.distance_to(t.global_position) <= 18.0:
+				var proj = Projectile.new()
+				get_parent().add_child(proj)
+				proj.setup(global_position + Vector3(0.0, 4.5, 0.0), t, 16)
+				break
+
 func queue_unit(type: String) -> bool:
+
 	if not GameManager.instance:
 		return false
 
@@ -167,6 +188,13 @@ func queue_unit(type: String) -> bool:
 			cost = {"food": 50, "wood": 50}
 		"transport_ship":
 			cost = {"wood": 120, "gold": 40}
+		"war_galleon":
+			cost = {"wood": 220, "stone": 80, "gold": 100}
+		"catapult":
+			cost = {"wood": 150, "stone": 100, "gold": 50}
+		"hero_commander":
+			cost = {"food": 150, "gold": 150}
+
 
 	if not GameManager.instance.can_afford(cost):
 		GameManager.instance.post_notification("Not enough resources to train " + type.capitalize())

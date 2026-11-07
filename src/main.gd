@@ -45,7 +45,6 @@ func capture_screenshot() -> void:
 		if img and not img.is_empty():
 			img.save_png("production/qa/evidence/island-empire-gameplay.png")
 
-
 func spawn_player_starter_base() -> void:
 	# Town Center
 	var tc = BuildingBase.new()
@@ -79,6 +78,22 @@ func spawn_military_unit(type: String, pos: Vector3) -> MilitaryUnit:
 	u.add_to_group("player_units")
 	return u
 
+func spawn_hero_commander(pos: Vector3) -> HeroCommander:
+	var hero = HeroCommander.new()
+	hero.team = "player"
+	add_child(hero)
+	hero.global_position = pos
+	hero.add_to_group("player_units")
+	return hero
+
+func spawn_catapult(pos: Vector3) -> Catapult:
+	var cat = Catapult.new()
+	cat.team = "player"
+	add_child(cat)
+	cat.global_position = pos
+	cat.add_to_group("player_units")
+	return cat
+
 func spawn_transport_ship(pos: Vector3) -> TransportShip:
 	var ship = TransportShip.new()
 	add_child(ship)
@@ -86,6 +101,12 @@ func spawn_transport_ship(pos: Vector3) -> TransportShip:
 	ship.add_to_group("player_ships")
 	return ship
 
+func spawn_war_galleon(pos: Vector3) -> WarGalleon:
+	var wship = WarGalleon.new()
+	add_child(wship)
+	wship.global_position = pos
+	wship.add_to_group("player_ships")
+	return wship
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
@@ -148,6 +169,7 @@ func finish_drag_selection(release_mouse: Vector2) -> void:
 			Vector2(min(drag_box_start.x, release_mouse.x), min(drag_box_start.y, release_mouse.y)),
 			(release_mouse - drag_box_start).abs()
 		)
+
 		var selected_units = []
 		var player_units = get_tree().get_nodes_in_group("player_units")
 		for u in player_units:
@@ -192,6 +214,15 @@ func handle_context_command(screen_pos: Vector2) -> void:
 			var ship: TransportShip = entity
 			ship.command_move_to(ground_pos)
 
+		elif entity is WarGalleon:
+			var wship: WarGalleon = entity
+			if target_entity is UnitBase and target_entity.team == "enemy":
+				wship.command_attack(target_entity)
+			elif target_entity is BuildingBase and target_entity.team == "enemy":
+				wship.command_attack(target_entity)
+			else:
+				wship.command_move_to(ground_pos)
+
 		elif entity is Villager:
 			var villager: Villager = entity
 			if target_entity is ResourceNode:
@@ -225,7 +256,6 @@ func _on_building_placed(type: String, world_pos: Vector3) -> void:
 	b.unit_trained.connect(_on_unit_trained)
 	game_manager.post_notification(BuildingData.BUILDINGS[type]["name"] + " constructed!")
 
-
 func _on_train_unit_requested(unit_type: String, building: BuildingBase) -> void:
 	building.queue_unit(unit_type)
 
@@ -240,10 +270,20 @@ func _on_unit_trained(unit_type: String, spawn_pos: Vector3) -> void:
 		"archer":
 			spawn_military_unit("archer", spawn_pos)
 			game_manager.post_notification("Archer recruited!")
+		"catapult":
+			spawn_catapult(spawn_pos)
+			game_manager.post_notification("Siege Catapult constructed!")
+		"hero_commander":
+			spawn_hero_commander(spawn_pos)
+			game_manager.post_notification("Island Lord has taken the field!")
 		"transport_ship":
 			var water_dock_pos = spawn_pos + Vector3(2.5, 0.0, 0.0)
 			spawn_transport_ship(water_dock_pos)
 			game_manager.post_notification("Galley Transport ready to sail!")
+		"war_galleon":
+			var water_dock_pos = spawn_pos + Vector3(3.5, 0.0, 0.0)
+			spawn_war_galleon(water_dock_pos)
+			game_manager.post_notification("War Galleon launched!")
 
 func _on_age_advance_requested() -> void:
-	game_manager.advance_to_bronze_age()
+	game_manager.advance_to_next_age()

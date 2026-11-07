@@ -79,8 +79,8 @@ func perform_attack() -> void:
 	if military_type == "archer":
 		# Spawn arrow projectile
 		var proj = Projectile.new()
-		proj.setup(global_position + Vector3(0.0, 1.0, 0.0), target_entity, attack_damage)
 		get_parent().add_child(proj)
+		proj.setup(global_position + Vector3(0.0, 1.0, 0.0), target_entity, attack_damage)
 	else:
 		# Melee attack
 		if target_entity.has_method("take_damage"):

@@ -67,5 +67,39 @@ static var BUILDINGS: Dictionary = {
 		"color": Color(0.8, 0.75, 0.65),
 		"age_req": GameManager.Age.STONE_AGE,
 		"description": "Empire hub; trains villagers"
+	},
+	"guard_tower": {
+		"name": "Guard Tower",
+		"cost": {"wood": 100, "stone": 80},
+		"build_time": 7.0,
+		"hp": 650,
+		"pop_bonus": 0,
+		"size": Vector3(2.5, 5.5, 2.5),
+		"color": Color(0.62, 0.62, 0.68),
+		"age_req": GameManager.Age.BRONZE_AGE,
+		"description": "Defensive tower that shoots arrows at intruders"
+	},
+	"stone_wall": {
+		"name": "Stone Wall",
+		"cost": {"stone": 25},
+		"build_time": 2.5,
+		"hp": 800,
+		"pop_bonus": 0,
+		"size": Vector3(3.0, 2.5, 1.2),
+		"color": Color(0.5, 0.5, 0.55),
+		"age_req": GameManager.Age.BRONZE_AGE,
+		"description": "Solid stone barrier"
+	},
+	"catapult_workshop": {
+		"name": "Siege Workshop",
+		"cost": {"wood": 180, "stone": 120, "gold": 60},
+		"build_time": 12.0,
+		"hp": 700,
+		"pop_bonus": 0,
+		"size": Vector3(4.5, 3.5, 4.5),
+		"color": Color(0.48, 0.35, 0.28),
+		"age_req": GameManager.Age.IRON_AGE,
+		"description": "Constructs siege Catapults and War Galleons"
 	}
+
 }

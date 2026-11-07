@@ -33,7 +33,7 @@ var hp_bar_fill: MeshInstance3D
 
 func _ready() -> void:
 	current_hp = max_hp
-	target_destination = global_position
+	target_destination = global_position if is_inside_tree() else position
 	build_visual()
 	build_collision()
 	build_selection_ring()

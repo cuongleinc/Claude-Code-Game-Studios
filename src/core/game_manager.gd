@@ -9,14 +9,22 @@ signal notification_posted(message: String)
 
 enum Age {
 	STONE_AGE,
-	BRONZE_AGE
+	BRONZE_AGE,
+	IRON_AGE,
+	MEDIEVAL_AGE
 }
 
 static var instance: GameManager
 
 var current_age: Age = Age.STONE_AGE
-var age_names: Array[String] = ["Stone Age", "Bronze Age"]
+var age_names: Array[String] = ["Stone Age", "Bronze Age", "Iron Age", "Medieval Age"]
+var age_costs: Array[Dictionary] = [
+	{"food": 400, "gold": 200},
+	{"food": 600, "wood": 300, "gold": 300},
+	{"food": 900, "stone": 500, "gold": 500}
+]
 var game_state: String = "playing"
+
 
 var resources: Dictionary = {
 	"food": 200,
@@ -73,21 +81,34 @@ func remove_population(count: int = 1) -> void:
 	emit_signal("resources_changed", resources)
 
 func can_advance_age() -> bool:
-	if current_age == Age.BRONZE_AGE:
+	if current_age >= Age.MEDIEVAL_AGE:
 		return false
-	return resources["food"] >= 400 and resources["gold"] >= 200
+	var cost = age_costs[current_age]
+	return can_afford(cost)
 
-func advance_to_bronze_age() -> bool:
-	if not can_advance_age():
-		post_notification("Need 400 Food and 200 Gold to advance to Bronze Age!")
+func get_next_age_cost() -> Dictionary:
+	if current_age >= Age.MEDIEVAL_AGE:
+		return {}
+	return age_costs[current_age]
+
+func advance_to_next_age() -> bool:
+	if current_age >= Age.MEDIEVAL_AGE:
+		post_notification("Already at maximum Age (Medieval Age)!")
 		return false
-	resources["food"] -= 400
-	resources["gold"] -= 200
-	current_age = Age.BRONZE_AGE
+
+	var cost = age_costs[current_age]
+	if not can_afford(cost):
+		var next_name = age_names[current_age + 1]
+		post_notification("Insufficient resources to advance to " + next_name + "!")
+		return false
+
+	spend_resources(cost)
+	current_age = (current_age + 1) as Age
 	emit_signal("resources_changed", resources)
 	emit_signal("age_advanced", age_names[current_age])
-	post_notification("Advanced to the Bronze Age! Bronze barracks and spearmen unlocked.")
+	post_notification("ADVANCED to the " + age_names[current_age] + "! New technologies unlocked.")
 	return true
+
 
 func set_game_speed(speed: float) -> void:
 	Engine.time_scale = speed
