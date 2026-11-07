@@ -10,44 +10,56 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.7
+- **Language**: GDScript
+- **Rendering**: Mobile (Vulkan Mobile)
+- **Physics**: Jolt 3D
 
 ## Input & Platform
 
 <!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
 <!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
 
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Mobile (iOS, Android) primary; Desktop (macOS, Windows, Linux) secondary
+- **Input Methods**: Touch (tap, drag-select, pinch-zoom), Keyboard/Mouse on desktop
+- **Primary Input**: Touch
+- **Gamepad Support**: None
+- **Touch Support**: Full
+- **Platform Notes**: High-contrast readable silhouettes at mobile scale; generous tap targets (min 48x48dp)
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase
+- **Variables**: snake_case
+- **Signals/Events**: past_tense (e.g. `building_constructed`, `unit_died`)
+- **Files**: snake_case (`.gd`, `.tscn`)
+- **Scenes/Prefabs**: snake_case (`.tscn`)
+- **Constants**: SCREAMING_SNAKE
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 FPS (30 FPS power-save fallback on mobile)
+- **Frame Budget**: 16.6ms
+- **Draw Calls**: < 150 per frame
+- **Memory Ceiling**: < 512 MB RAM on mobile devices
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: gdUnit4
+- **Minimum Coverage**: Core economy & combat logic
+- **Required Tests**: Balance formulas, Age progression, gather rates, island conquer conditions
+
+## Asset Pipeline & Art Generation
+
+- **Art Style**: Pixel Art
+- **Generator**: PixelLab MCP (`pixellab`)
+- **Capabilities**:
+  - Characters: Multi-directional character generation (`create_character`, `create_character_pro_flash`, `create_character_state`)
+  - Animations: Sprite animation & lip sync (`animate_character`, `animate_with_skeleton_v3`, `create_talking_gif`)
+  - Tilesets: Top-down, sidescroller, and isometric tiles (`create_topdown_tileset`, `create_sidescroller_tileset`, `create_isometric_tile`, `create_tiles_pro`)
+  - Objects: 1-direction & 8-direction map objects, room cut-outs (`create_1_direction_object`, `create_8_direction_object`, `create_map_object`, `create_room`)
+  - UI: Pixel art UI elements, buttons, panels, custom pixel fonts (`create_ui_asset`, `create_font`)
+  - VFX & Tooling: Pixel workbench and VFX workbench (`pixelart_workbench`, `vfx_workbench`, `edit_image_pro_flash`, `reduce_colors`, `correct_pixelart`)
 
 ## Forbidden Patterns
 
@@ -70,12 +82,12 @@
 <!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
 <!-- to know which specialist to spawn for engine-specific validation. -->
 
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: godot-specialist
+- **Language/Code Specialist**: godot-gdscript-specialist
+- **Shader Specialist**: godot-shader-specialist
+- **UI Specialist**: godot-specialist
+- **Additional Specialists**: godot-gdextension-specialist
+- **Routing Notes**: Use GDScript for gameplay and UI; use Godot shaders for water and environment effects; consult GDExtension if high-throughput pathfinding or simulation needs C++
 
 ### File Extension Routing
 
@@ -84,9 +96,9 @@
 
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| Game code (`.gd`) | godot-gdscript-specialist |
+| Shader / material files (`.gdshader`) | godot-shader-specialist |
+| UI / screen files (`.tscn` under UI/) | godot-specialist |
+| Scene / prefab / level files (`.tscn`) | godot-specialist |
+| Native extension / plugin files | godot-gdextension-specialist |
+| General architecture review | godot-specialist |

@@ -75,6 +75,7 @@ Before writing any code:
    atlas management.
 4. **Art Pipeline**: Build and maintain the asset processing pipeline --
    import settings, format conversions, texture atlasing, mesh optimization.
+   - **PixelLab MCP Integration**: The project uses the `pixellab` MCP server for generating pixel art. Bridge generated assets into the engine by validating pixel grid consistency (e.g. 16x16, 32x32), texture filtering (Nearest/Point filtering for crisp pixels), sprite sheet formatting, palette coherence, and collision shapes.
 5. **Visual Quality/Performance Balance**: Find the sweet spot between visual
    quality and performance for each visual feature. Document quality tiers.
 6. **Art Standards Enforcement**: Validate incoming art assets against technical

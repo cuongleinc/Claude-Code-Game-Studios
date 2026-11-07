@@ -7,6 +7,51 @@ framework:
   version: 1.2.0
   last_upgraded: 2026-10-19
 
+project:
+  stage: Concept
+
+engine:
+  name: "Godot"
+  version: "4.7"
+  path: "godot"
+  language: "GDScript"
+  rendering: "Mobile"
+  physics: "Jolt"
+
+specialists:
+  code: "godot-gdscript-specialist"
+  shader: "godot-shader-specialist"
+  ui: "godot-specialist"
+  additional: ["godot-gdextension-specialist"]
+
+naming:
+  classes: "PascalCase"
+  variables: "snake_case"
+  constants: "SCREAMING_SNAKE"
+  signals: "past_tense"
+  files: "snake_case"
+  scenes: "snake_case"
+
+commands:
+  build: "[TO BE CONFIGURED — configure export preset in Godot editor]"
+  test: "godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode"
+  run: "godot --path . --windowed --resolution 1280x720"
+  smoke: "godot --headless --quit-after 5"
+
+art:
+  style: "pixel-art"
+  generator: "pixellab"
+  mcp_server: "pixellab"
+  capabilities:
+    characters: "multi-directional sprites, state animations, portraits"
+    animations: "walking, attack, idle, vocal animation, lip sync"
+    tilesets: "top-down, sidescroller, isometric, path tiles, building kits"
+    objects: "1-direction & 8-direction map objects, rooms, furniture"
+    ui: "pixel art UI assets, icons, retro pixel fonts"
+    vfx: "vfx_workbench, pixelart_workbench, frame-by-frame pixel effects"
+
+
+
 # NOTE: this template ships with no `modes:` block, and the six knobs below must
 # never be added to one.
 #

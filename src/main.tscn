@@ -1,0 +1,65 @@
+[gd_scene load_steps=9 format=3 uid="uid://island_empire_main_scene"]
+
+[ext_resource type="Script" path="res://src/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/core/game_manager.gd" id="2_gm"]
+[ext_resource type="Script" path="res://src/core/camera_controller.gd" id="3_cam"]
+[ext_resource type="Script" path="res://src/environment/island_world.gd" id="4_world"]
+[ext_resource type="Script" path="res://src/ai/enemy_camp.gd" id="5_ai"]
+[ext_resource type="Script" path="res://src/buildings/building_placement.gd" id="6_place"]
+[ext_resource type="Script" path="res://src/ui/rts_hud.gd" id="7_hud"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.45, 0.72, 0.88, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.72, 0.85, 0.95, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 20, 0)
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("2_gm")
+
+[node name="CameraController" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0, 0)
+script = ExtResource("3_cam")
+
+[node name="PitchPivot" type="Node3D" parent="CameraController"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/PitchPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 28)
+current = true
+fov = 48.0
+
+[node name="IslandWorld" type="Node3D" parent="."]
+script = ExtResource("4_world")
+
+[node name="EnemyCamp" type="Node3D" parent="."]
+script = ExtResource("5_ai")
+
+[node name="BuildingPlacement" type="Node3D" parent="."]
+script = ExtResource("6_place")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="RTSHud" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("7_hud")

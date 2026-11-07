@@ -5,11 +5,15 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 ## Technology Stack
 
-- **Engine**: [CHOOSE: Godot 4 / Unity / Unreal Engine 5]
-- **Language**: [CHOOSE: GDScript / C# / C++ / Blueprint]
+- **Engine**: Godot 4.7
+- **Language**: GDScript (typed, Godot-native)
+- **Rendering**: Mobile (Vulkan Mobile)
+- **Physics**: Jolt 3D Physics
 - **Version Control**: Git with trunk-based development
-- **Build System**: [SPECIFY after choosing engine]
-- **Asset Pipeline**: [SPECIFY after choosing engine]
+- **Build System**: Godot Export CLI
+- **Asset Pipeline**: PixelLab MCP (`pixellab` — AI pixel art generator for characters, animations, tilesets, objects, UI, and VFX)
+
+
 
 > **Note**: Engine-specialist agents exist for Godot, Unity, and Unreal with
 > dedicated sub-specialists. Use the set matching your engine.

@@ -93,6 +93,17 @@ Examples:
 - `ui_btn_primary_hover.png`
 - `vfx_[effect]_loop_small.png`
 
+### Art Generation Tooling: PixelLab MCP
+
+The project is connected to the **PixelLab MCP server (`pixellab`)** for automated pixel art generation:
+- **Characters & Animations**: Multi-directional character sprites (`create_character`, `create_character_pro_flash`), state animations (`animate_character`, `animate_with_skeleton_v3`), and portraits (`create_portrait_character`).
+- **Tilesets**: Top-down, sidescroller, and isometric tilesets (`create_topdown_tileset`, `create_sidescroller_tileset`, `create_isometric_tile`, `create_tiles_pro`).
+- **Objects & Rooms**: 1-direction and 8-direction map props and room cutouts (`create_1_direction_object`, `create_8_direction_object`, `create_map_object`, `create_room`).
+- **UI & Fonts**: Custom retro pixel UI assets (`create_ui_asset`) and pixel fonts (`create_font`).
+- **Editing & Color Reduction**: Inpainting, color palette quantization, and pixel cleanup (`inpaint_image_pro_flash`, `reduce_colors`, `correct_pixelart`, `pixelart_workbench`, `vfx_workbench`).
+
+When authoring the Art Bible or generating asset specs (`/asset-spec`), format generation prompts and visual parameters to align with PixelLab capabilities and the project's chosen pixel resolution and palette rules.
+
 ## Gate Verdict Format
 
 When invoked via a director gate (e.g., `AD-ART-BIBLE`, `AD-CONCEPT-VISUAL`), read the gate's definition file
