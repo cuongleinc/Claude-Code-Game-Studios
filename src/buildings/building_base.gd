@@ -186,6 +186,8 @@ func queue_unit(type: String) -> bool:
 			cost = {"food": 60, "wood": 30}
 		"archer":
 			cost = {"food": 50, "wood": 50}
+		"knight":
+			cost = {"food": 100, "gold": 80}
 		"transport_ship":
 			cost = {"wood": 120, "gold": 40}
 		"war_galleon":

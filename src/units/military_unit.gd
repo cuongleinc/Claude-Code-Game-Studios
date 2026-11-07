@@ -1,7 +1,7 @@
 class_name MilitaryUnit
 extends UnitBase
 
-@export var military_type: String = "spearman" # "spearman", "archer", "barbarian"
+@export var military_type: String = "spearman"
 
 func _ready() -> void:
 	match military_type:
@@ -19,17 +19,78 @@ func _ready() -> void:
 			attack_range = 14.0
 			attack_cooldown = 1.6
 			move_speed = 6.2
-		"barbarian":
-			unit_name = "Barbarian"
+		"barbarian", "clan_berserker":
+			unit_name = "Clan Berserker"
 			team = "enemy"
 			max_hp = 110
-			attack_damage = 15
+			attack_damage = 18
 			attack_range = 1.8
-			attack_cooldown = 1.2
-			move_speed = 5.8
+			attack_cooldown = 1.1
+			move_speed = 6.0
+		"corsair_raider":
+			unit_name = "Corsair Raider"
+			team = "enemy"
+			max_hp = 125
+			attack_damage = 20
+			attack_range = 1.8
+			attack_cooldown = 0.95
+			move_speed = 6.6
+		"dread_captain":
+			unit_name = "Dread Captain Flint"
+			team = "enemy"
+			max_hp = 650
+			attack_damage = 40
+			attack_range = 2.8
+			attack_cooldown = 1.4
+			move_speed = 6.0
+		"clan_chieftain":
+			unit_name = "Chieftain Gorgar"
+			team = "enemy"
+			max_hp = 750
+			attack_damage = 48
+			attack_range = 2.6
+			attack_cooldown = 1.6
+			move_speed = 5.2
 
 	super._ready()
 	build_weapon_visual()
+	attach_pixel_art_billboard()
+
+func attach_pixel_art_billboard() -> void:
+	var sprite_map = {
+		"barbarian": "res://assets/enemies/clan_berserker.png",
+		"clan_berserker": "res://assets/enemies/clan_berserker.png",
+		"clan_chieftain": "res://assets/enemies/clan_chieftain.png",
+		"corsair_raider": "res://assets/enemies/corsair_raider.png",
+		"dread_captain": "res://assets/enemies/dread_captain.png"
+	}
+
+	if sprite_map.has(military_type):
+		var path = sprite_map[military_type]
+		if ResourceLoader.exists(path):
+			var tex = load(path)
+			var sprite = Sprite3D.new()
+			sprite.texture = tex
+			var is_boss = (military_type in ["dread_captain", "clan_chieftain"])
+			sprite.pixel_size = 0.026 if is_boss else 0.02
+			sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+			sprite.position = Vector3(0.0, 1.4 if is_boss else 1.1, 0.0)
+			visual_mesh.add_child(sprite)
+
+			if is_boss:
+				# Imposing boss aura ring on ground
+				var ring = MeshInstance3D.new()
+				var torus = TorusMesh.new()
+				torus.inner_radius = 1.6
+				torus.outer_radius = 1.85
+				ring.mesh = torus
+				var r_mat = StandardMaterial3D.new()
+				r_mat.albedo_color = Color(0.9, 0.15, 0.15, 0.5)
+				r_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+				ring.material_override = r_mat
+				ring.position = Vector3(0.0, 0.06, 0.0)
+				add_child(ring)
 
 func build_weapon_visual() -> void:
 	match military_type:
@@ -58,7 +119,7 @@ func build_weapon_visual() -> void:
 			bow.position = Vector3(0.35, 0.8, -0.1)
 			bow.rotation_degrees.y = 90.0
 			visual_mesh.add_child(bow)
-		"barbarian":
+		"barbarian", "clan_berserker":
 			var club = MeshInstance3D.new()
 			var cyl = CylinderMesh.new()
 			cyl.top_radius = 0.16
@@ -71,17 +132,28 @@ func build_weapon_visual() -> void:
 			club.position = Vector3(0.4, 0.8, -0.2)
 			club.rotation_degrees.x = 45.0
 			visual_mesh.add_child(club)
+		"corsair_raider":
+			for side in [-0.4, 0.4]:
+				var blade = MeshInstance3D.new()
+				var box = BoxMesh.new()
+				box.size = Vector3(0.06, 0.9, 0.12)
+				var mat = StandardMaterial3D.new()
+				mat.albedo_color = Color(0.85, 0.85, 0.9)
+				mat.metallic = 0.8
+				blade.mesh = box
+				blade.material_override = mat
+				blade.position = Vector3(side, 0.8, -0.2)
+				blade.rotation_degrees.x = 40.0
+				visual_mesh.add_child(blade)
 
 func perform_attack() -> void:
 	if not is_instance_valid(target_entity):
 		return
 
 	if military_type == "archer":
-		# Spawn arrow projectile
 		var proj = Projectile.new()
 		get_parent().add_child(proj)
 		proj.setup(global_position + Vector3(0.0, 1.0, 0.0), target_entity, attack_damage)
 	else:
-		# Melee attack
 		if target_entity.has_method("take_damage"):
 			target_entity.take_damage(attack_damage)

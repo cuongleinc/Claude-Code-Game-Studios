@@ -8,7 +8,8 @@ func _init() -> void:
 	var test_files = [
 		"res://tests/unit/test_economy.gd",
 		"res://tests/unit/test_combat.gd",
-		"res://tests/unit/test_age_progression.gd"
+		"res://tests/unit/test_age_progression.gd",
+		"res://tests/unit/test_factions_and_units.gd"
 	]
 
 	var total_tests: int = 0

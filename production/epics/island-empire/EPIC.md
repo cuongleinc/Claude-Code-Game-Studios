@@ -30,4 +30,5 @@ Build the initial vertical slice of Island Empire: a 3D RTS/city-builder on Godo
 | story-006 | Enemy Island Camp & Amphibious Raids | Feature | Logic | Complete | M |
 | story-007 | Age Advancement, RTS HUD & Game Loop | Presentation | UI | Complete | M |
 | story-008 | Expansion, PixelLab Pixel Art, Siege & Tests | Feature | Full-Stack | Complete | L |
+| story-009 | Character & Enemy Design, Pixel Art & Roster | Feature | Design/Art | Complete | L |
 

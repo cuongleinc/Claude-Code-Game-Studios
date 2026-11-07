@@ -86,6 +86,14 @@ func spawn_hero_commander(pos: Vector3) -> HeroCommander:
 	hero.add_to_group("player_units")
 	return hero
 
+func spawn_knight(pos: Vector3) -> RoyalKnight:
+	var k = RoyalKnight.new()
+	k.team = "player"
+	add_child(k)
+	k.global_position = pos
+	k.add_to_group("player_units")
+	return k
+
 func spawn_catapult(pos: Vector3) -> Catapult:
 	var cat = Catapult.new()
 	cat.team = "player"
@@ -270,6 +278,9 @@ func _on_unit_trained(unit_type: String, spawn_pos: Vector3) -> void:
 		"archer":
 			spawn_military_unit("archer", spawn_pos)
 			game_manager.post_notification("Archer recruited!")
+		"knight":
+			spawn_knight(spawn_pos)
+			game_manager.post_notification("Royal Knight mounted for battle!")
 		"catapult":
 			spawn_catapult(spawn_pos)
 			game_manager.post_notification("Siege Catapult constructed!")

@@ -434,6 +434,11 @@ func _on_selection_changed(entities: Array) -> void:
 					train_a.pressed.connect(func(): emit_signal("train_unit_requested", "archer", b))
 					sel_action_box.add_child(train_a)
 
+					var train_k = Button.new()
+					train_k.text = "Knight (100F, 80G)"
+					train_k.pressed.connect(func(): emit_signal("train_unit_requested", "knight", b))
+					sel_action_box.add_child(train_k)
+
 				"harbor":
 					var build_s = Button.new()
 					build_s.text = "Galley (120W, 40G)"
@@ -469,6 +474,11 @@ func _on_selection_changed(entities: Array) -> void:
 		var cat: Catapult = first
 		sel_title.text = "Siege Catapult"
 		sel_info.text = "HP: " + str(cat.current_hp) + "/" + str(cat.max_hp) + " | Siege: 45 Dmg (24m Range)"
+
+	elif first is RoyalKnight:
+		var rk: RoyalKnight = first
+		sel_title.text = "Royal Knight (Heavy Cavalry)"
+		sel_info.text = "HP: " + str(rk.current_hp) + "/" + str(rk.max_hp) + " | Lance: 32 Dmg (Speed: 8.5)"
 
 	elif first is HeroCommander:
 		var hero: HeroCommander = first
