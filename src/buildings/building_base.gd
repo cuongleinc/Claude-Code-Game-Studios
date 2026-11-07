@@ -48,6 +48,17 @@ func build_visual() -> void:
 	visual_mesh.name = "Visual"
 	add_child(visual_mesh)
 
+	# Check for high-fidelity 3D Asian Pagoda GLB model
+	var glb_path = "res://assets/models/" + building_type + ".glb"
+	if ResourceLoader.exists(glb_path):
+		var glb_res = load(glb_path)
+		if glb_res:
+			var model_inst = glb_res.instantiate()
+			visual_mesh.add_child(model_inst)
+			if team == "enemy":
+				model_inst.scale = Vector3(1.05, 1.05, 1.05)
+			return
+
 	var data = BuildingData.BUILDINGS.get(building_type, {})
 	var b_size: Vector3 = data.get("size", Vector3(2.5, 2.0, 2.5))
 	var base_col: Color = data.get("color", Color(0.7, 0.6, 0.5))

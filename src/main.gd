@@ -55,6 +55,12 @@ func spawn_player_starter_base() -> void:
 	tc.unit_trained.connect(_on_unit_trained)
 	game_manager.select_entity(tc)
 
+	# Starter Asian Pagoda House (Reference Image Pavilion Cottage)
+	var house = BuildingBase.new()
+	add_child(house)
+	house.setup("house", island_world.island1_center + Vector3(6.5, 0.0, -3.0), "player", true)
+	house.add_to_group("player_buildings")
+
 	# 3 Starting Villagers
 	var offsets = [
 		Vector3(4.0, 0.5, 2.0),

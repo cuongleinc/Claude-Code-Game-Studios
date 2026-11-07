@@ -24,6 +24,17 @@ func setup(type: String, pos: Vector3, amount: int) -> void:
 func build_visual() -> void:
 	match resource_type:
 		"wood":
+			var pine_path = "res://assets/models/pine_tree.glb"
+			if ResourceLoader.exists(pine_path):
+				var p_res = load(pine_path)
+				if p_res:
+					var p_inst = p_res.instantiate()
+					var rand_scale = randf_range(0.85, 1.15)
+					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
+					p_inst.rotation.y = randf() * TAU
+					add_child(p_inst)
+					return
+
 			# Tree trunk
 			var trunk = MeshInstance3D.new()
 			var trunk_mesh = CylinderMesh.new()
