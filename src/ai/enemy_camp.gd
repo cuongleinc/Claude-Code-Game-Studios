@@ -1,7 +1,7 @@
 class_name EnemyCamp
 extends Node3D
 
-@export var island_center: Vector3 = Vector3(45.0, 0.0, 0.0)
+@export var island_center: Vector3 = Vector3(90.0, 0.0, 0.0)
 @export var raid_interval: float = 65.0
 
 var raid_timer: float = 0.0

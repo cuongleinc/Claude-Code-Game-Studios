@@ -24,6 +24,9 @@ func _ready() -> void:
 	# Connect building placement signal
 	building_placement.building_placed.connect(_on_building_placed)
 
+	# Focus camera on player island center
+	camera_controller.global_position = island_world.island1_center
+
 	# Spawn initial player Town Center & Villagers
 	spawn_player_starter_base()
 

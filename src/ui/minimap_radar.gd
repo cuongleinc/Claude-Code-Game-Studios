@@ -3,10 +3,9 @@ extends Control
 
 signal map_position_clicked(world_target: Vector3)
 
-# Map world bounds: Player island is around x: -25, Enemy island is around x: 45
-# z goes from -35 to 35
-var world_min: Vector2 = Vector2(-55.0, -40.0)
-var world_max: Vector2 = Vector2(75.0, 40.0)
+# Map world bounds: Player island is around x: -50, Enemy island is around x: 90
+var world_min: Vector2 = Vector2(-120.0, -75.0)
+var world_max: Vector2 = Vector2(150.0, 75.0)
 var is_dragging: bool = false
 
 func _ready() -> void:
@@ -47,15 +46,15 @@ func _draw() -> void:
 		var gy = (size.y / 4.0) * i
 		draw_line(Vector2(0, gy), Vector2(size.x, gy), Color(0.12, 0.28, 0.38, 0.4), 1.0)
 
-	# Draw Island 1 (Player Island: Center around -25, 0, Radius 18)
-	var p1 = world_to_map(Vector3(-25.0, 0.0, 0.0))
-	var r1 = (18.0 / (world_max.x - world_min.x)) * size.x
+	# Draw Island 1 (Player Island: Center around -50, 0, Radius 50)
+	var p1 = world_to_map(Vector3(-50.0, 0.0, 0.0))
+	var r1 = (50.0 / (world_max.x - world_min.x)) * size.x
 	draw_circle(p1, r1 + 2.0, Color(0.85, 0.8, 0.55, 0.6)) # Sand
 	draw_circle(p1, r1 - 1.0, Color(0.25, 0.55, 0.3, 0.85)) # Grass
 
-	# Draw Island 2 (Enemy Island: Center around 45, 0, Radius 18)
-	var p2 = world_to_map(Vector3(45.0, 0.0, 0.0))
-	var r2 = (18.0 / (world_max.x - world_min.x)) * size.x
+	# Draw Island 2 (Enemy Island: Center around 90, 0, Radius 45)
+	var p2 = world_to_map(Vector3(90.0, 0.0, 0.0))
+	var r2 = (45.0 / (world_max.x - world_min.x)) * size.x
 	draw_circle(p2, r2 + 2.0, Color(0.7, 0.65, 0.5, 0.6))
 	draw_circle(p2, r2 - 1.0, Color(0.38, 0.35, 0.3, 0.85))
 

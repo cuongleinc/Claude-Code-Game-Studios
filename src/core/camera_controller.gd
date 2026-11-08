@@ -1,20 +1,20 @@
 class_name CameraController
 extends Node3D
 
-@export var move_speed: float = 24.0
-@export var zoom_speed: float = 12.0
+@export var move_speed: float = 28.0
+@export var zoom_speed: float = 14.0
 @export var min_zoom: float = 10.0
-@export var max_zoom: float = 65.0
+@export var max_zoom: float = 90.0
 @export var rotate_speed: float = 2.0
 
-@export var min_bounds: Vector2 = Vector2(-120.0, -120.0)
-@export var max_bounds: Vector2 = Vector2(120.0, 120.0)
+@export var min_bounds: Vector2 = Vector2(-150.0, -120.0)
+@export var max_bounds: Vector2 = Vector2(170.0, 120.0)
 
 @onready var pitch_pivot: Node3D = $PitchPivot
 @onready var camera: Camera3D = $PitchPivot/Camera3D
 
-var current_zoom: float = 28.0
-var target_zoom: float = 28.0
+var current_zoom: float = 42.0
+var target_zoom: float = 42.0
 var is_dragging: bool = false
 var drag_start_mouse_pos: Vector2 = Vector2.ZERO
 var drag_start_cam_pos: Vector3 = Vector3.ZERO
