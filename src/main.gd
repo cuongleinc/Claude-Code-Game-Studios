@@ -68,14 +68,11 @@ func spawn_player_starter_base() -> void:
 	barracks.add_to_group("player_buildings")
 	barracks.unit_trained.connect(_on_unit_trained)
 
-	# Free 3D Model Demo (Imported Game-Ready Cottage)
-	if ResourceLoader.exists("res://assets/models/free_cottage.glb"):
-		var free_res = load("res://assets/models/free_cottage.glb")
-		if free_res:
-			var free_inst = free_res.instantiate()
-			free_inst.position = island_world.island1_center + Vector3(-6.5, 0.0, -2.5)
-			free_inst.scale = Vector3(2.5, 2.5, 2.5)
-			add_child(free_inst)
+	# Western Asian Pagoda Cottage
+	var west_house = BuildingBase.new()
+	add_child(west_house)
+	west_house.setup("house", island_world.island1_center + Vector3(-6.5, 0.0, -2.5), "player", true)
+	west_house.add_to_group("player_buildings")
 
 	# 3 Starting Villagers working the land
 	spawn_villager(island_world.island1_center + Vector3(-5.0, 0.5, 1.5))

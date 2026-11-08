@@ -79,6 +79,18 @@ func build_visual() -> void:
 			add_child(foliage2)
 
 		"stone":
+			var stone_path = "res://assets/models/pixel_stone.glb"
+			if ResourceLoader.exists(stone_path):
+				var p_res = load(stone_path)
+				if p_res:
+					var p_inst = p_res.instantiate()
+					var rand_scale = randf_range(0.9, 1.15)
+					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
+					p_inst.rotation.y = randf() * TAU
+					enable_vertex_colors(p_inst)
+					add_child(p_inst)
+					return
+
 			var boulder = MeshInstance3D.new()
 			var sphere = SphereMesh.new()
 			sphere.radius = 0.9
@@ -92,6 +104,18 @@ func build_visual() -> void:
 			add_child(boulder)
 
 		"food":
+			var food_path = "res://assets/models/pixel_food.glb"
+			if ResourceLoader.exists(food_path):
+				var p_res = load(food_path)
+				if p_res:
+					var p_inst = p_res.instantiate()
+					var rand_scale = randf_range(0.95, 1.15)
+					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
+					p_inst.rotation.y = randf() * TAU
+					enable_vertex_colors(p_inst)
+					add_child(p_inst)
+					return
+
 			var bush = MeshInstance3D.new()
 			var sphere = SphereMesh.new()
 			sphere.radius = 0.75
@@ -118,6 +142,18 @@ func build_visual() -> void:
 				add_child(berry)
 
 		"gold":
+			var gold_path = "res://assets/models/pixel_gold.glb"
+			if ResourceLoader.exists(gold_path):
+				var p_res = load(gold_path)
+				if p_res:
+					var p_inst = p_res.instantiate()
+					var rand_scale = randf_range(0.95, 1.15)
+					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
+					p_inst.rotation.y = randf() * TAU
+					enable_vertex_colors(p_inst)
+					add_child(p_inst)
+					return
+
 			var ore = MeshInstance3D.new()
 			var box = BoxMesh.new()
 			box.size = Vector3(1.2, 1.0, 1.2)

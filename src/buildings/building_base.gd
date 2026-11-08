@@ -48,6 +48,18 @@ func build_visual() -> void:
 	visual_mesh.name = "Visual"
 	add_child(visual_mesh)
 
+	# Check for 3D Voxel Pixel Model first
+	var pixel_glb_path = "res://assets/models/pixel_" + building_type + ".glb"
+	if ResourceLoader.exists(pixel_glb_path):
+		var p_res = load(pixel_glb_path)
+		if p_res:
+			var p_inst = p_res.instantiate()
+			visual_mesh.add_child(p_inst)
+			enable_vertex_colors(p_inst)
+			if team == "enemy":
+				p_inst.scale = Vector3(1.05, 1.05, 1.05)
+			return
+
 	# Check for high-fidelity 3D Asian Pagoda GLB model
 	var glb_path = "res://assets/models/" + building_type + ".glb"
 	if ResourceLoader.exists(glb_path):
@@ -324,3 +336,13 @@ func die() -> void:
 	elif building_type == "totem_shrine" and team == "enemy" and GameManager.instance:
 		GameManager.instance.trigger_victory()
 	queue_free()
+
+func enable_vertex_colors(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		var mat = StandardMaterial3D.new()
+		mat.vertex_color_use_as_albedo = true
+		mat.roughness = 0.8
+		mi.material_override = mat
+	for child in node.get_children():
+		enable_vertex_colors(child)
