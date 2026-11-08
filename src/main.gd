@@ -61,6 +61,15 @@ func spawn_player_starter_base() -> void:
 	house.setup("house", island_world.island1_center + Vector3(6.5, 0.0, -3.0), "player", true)
 	house.add_to_group("player_buildings")
 
+	# Free 3D Model Demo (Imported Game-Ready Cottage)
+	if ResourceLoader.exists("res://assets/models/free_cottage.glb"):
+		var free_res = load("res://assets/models/free_cottage.glb")
+		if free_res:
+			var free_inst = free_res.instantiate()
+			free_inst.position = island_world.island1_center + Vector3(-6.5, 0.0, -2.5)
+			free_inst.scale = Vector3(2.5, 2.5, 2.5)
+			add_child(free_inst)
+
 	# 3 Starting Villagers
 	var offsets = [
 		Vector3(4.0, 0.5, 2.0),

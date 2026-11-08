@@ -4,7 +4,7 @@
 ;
 ; Format:
 ;   [section] ; section goes between []
-;   param=value ; assign value to attribute
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -20,7 +20,6 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-
 
 [rendering]
 
