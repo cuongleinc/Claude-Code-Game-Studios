@@ -165,11 +165,11 @@ func spawn_initial_resources() -> void:
 	add_child(res_container)
 
 	# ==========================================
-	# 1. THE WHISPERING PINE FOREST (West & South-West)
-	# 20+ lush LEGO Pine Trees in an expansive woodland belt
+	# 1. THE FORESTS OF ISLAND EMPIRE
+	# A. Whispering Pines (North & West Ridge)
 	# ==========================================
 	var forest_center = island1_center + Vector3(-22.0, 0.0, 14.0)
-	var forest_offsets = [
+	var pine_offsets = [
 		Vector3(-6.0, 0.8, -6.0),
 		Vector3(-10.0, 0.8, -3.0),
 		Vector3(-14.0, 0.8, -8.0),
@@ -179,20 +179,40 @@ func spawn_initial_resources() -> void:
 		Vector3(-6.0, 0.8, 8.0),
 		Vector3(-16.0, 0.8, 6.0),
 		Vector3(-18.0, 0.8, -2.0),
-		Vector3(-2.0, 0.8, 6.0),
-		Vector3(-8.0, 0.8, 12.0),
-		Vector3(-12.0, 0.8, 10.0),
-		Vector3(-14.0, 0.8, 14.0),
-		Vector3(-4.0, 0.8, 16.0),
-		Vector3(2.0, 0.8, 10.0),
-		Vector3(4.0, 0.8, 14.0),
-		Vector3(0.0, 0.8, 18.0),
 		Vector3(-10.0, 0.8, 18.0),
 		Vector3(-6.0, 0.8, 22.0),
 		Vector3(-14.0, 0.8, -14.0)
 	]
-	for off in forest_offsets:
-		spawn_resource(res_container, "wood", forest_center + off, 200)
+	for off in pine_offsets:
+		spawn_resource(res_container, "wood", forest_center + off, 220, "pine")
+
+	# B. Majestic Broadleaf Oaks (Central Clearings & Capital Glade)
+	var oak_offsets = [
+		Vector3(12.0, 0.8, 12.0),
+		Vector3(16.0, 0.8, 8.0),
+		Vector3(8.0, 0.8, 18.0),
+		Vector3(14.0, 0.8, 20.0),
+		Vector3(-12.0, 0.8, -18.0),
+		Vector3(-6.0, 0.8, -22.0),
+		Vector3(4.0, 0.8, -12.0),
+		Vector3(8.0, 0.8, -8.0)
+	]
+	for off in oak_offsets:
+		spawn_resource(res_container, "wood", island1_center + off, 250, "oak")
+
+	# C. Tropical Coconut Palms (Sunny Perimeter Beaches)
+	var palm_offsets = [
+		Vector3(-36.0, 0.3, 0.0),
+		Vector3(-34.0, 0.3, 16.0),
+		Vector3(-28.0, 0.3, 26.0),
+		Vector3(0.0, 0.3, 36.0),
+		Vector3(18.0, 0.3, 32.0),
+		Vector3(34.0, 0.3, 14.0),
+		Vector3(36.0, 0.3, -4.0),
+		Vector3(26.0, 0.3, 26.0)
+	]
+	for off in palm_offsets:
+		spawn_resource(res_container, "wood", island1_center + off, 180, "palm")
 
 	# Berry Bush Foraging Groves (along the forest border)
 	var food_offsets = [
@@ -201,10 +221,12 @@ func spawn_initial_resources() -> void:
 		Vector3(-14.0, 0.8, 12.0),
 		Vector3(-10.0, 0.8, 14.0),
 		Vector3(-4.0, 0.8, 12.0),
-		Vector3(-6.0, 0.8, 16.0)
+		Vector3(-6.0, 0.8, 16.0),
+		Vector3(2.0, 0.8, 14.0),
+		Vector3(6.0, 0.8, 12.0)
 	]
 	for off in food_offsets:
-		spawn_resource(res_container, "food", island1_center + off, 150)
+		spawn_resource(res_container, "food", island1_center + off, 160)
 
 	# ==========================================
 	# 2. MOUNTAIN QUARRY & GOLD BASIN (North-East)
@@ -224,7 +246,7 @@ func spawn_initial_resources() -> void:
 		Vector3(1.0, 1.4, 7.0)
 	]
 	for off in stone_offsets:
-		spawn_resource(res_container, "stone", quarry_center + off, 300)
+		spawn_resource(res_container, "stone", quarry_center + off, 320)
 
 	var gold_offsets = [
 		Vector3(-1.0, 1.4, -2.0),
@@ -235,7 +257,7 @@ func spawn_initial_resources() -> void:
 		Vector3(7.0, 1.4, 0.0)
 	]
 	for off in gold_offsets:
-		spawn_resource(res_container, "gold", quarry_center + off, 350)
+		spawn_resource(res_container, "gold", quarry_center + off, 380)
 
 	# ==========================================
 	# 3. ENEMY ISLAND RESOURCES
@@ -249,7 +271,7 @@ func spawn_initial_resources() -> void:
 		Vector3(12.0, 0.8, 16.0)
 	]
 	for off in enemy_trees:
-		spawn_resource(res_container, "wood", island2_center + off, 200)
+		spawn_resource(res_container, "wood", island2_center + off, 200, "pine")
 
 	var enemy_stones = [
 		Vector3(18.0, 0.8, -8.0),
@@ -270,11 +292,11 @@ func spawn_scenic_landmarks() -> void:
 			m_inst.position = bluff_center
 			add_child(m_inst)
 
-func spawn_resource(parent: Node3D, type: String, pos: Vector3, amount: int) -> void:
+func spawn_resource(parent: Node3D, type: String, pos: Vector3, amount: int, variant: String = "") -> void:
 	var node = Node3D.new()
 	node.set_script(preload("res://src/economy/resource_node.gd"))
 	parent.add_child(node)
-	node.call("setup", type, pos, amount)
+	node.call("setup", type, pos, amount, variant)
 
 func is_on_player_island(pos: Vector3) -> bool:
 	return pos.distance_to(island1_center) <= island1_radius

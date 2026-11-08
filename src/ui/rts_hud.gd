@@ -1039,8 +1039,11 @@ func setup_single_dossier(first: Node3D) -> void:
 		dossier_hp_bar.value = rk.current_hp
 		dossier_hp_text.text = "%d / %d HP" % [rk.current_hp, rk.max_hp]
 		dossier_stats.text = "⚔️ Lance: 32 Dmg | 🏃 Speed: 8.5 | 🛡️ Heavy Armor"
-		if ResourceLoader.exists("res://assets/characters/royal_knight.png"):
-			dossier_avatar.texture = load("res://assets/characters/royal_knight.png")
+		var rk_icon = "res://assets/pixel_art/characters/royal_knight_portrait.png"
+		if not ResourceLoader.exists(rk_icon):
+			rk_icon = "res://assets/characters/royal_knight.png"
+		if ResourceLoader.exists(rk_icon):
+			dossier_avatar.texture = load(rk_icon)
 
 	elif first is HeroCommander:
 		var hero: HeroCommander = first
@@ -1050,8 +1053,11 @@ func setup_single_dossier(first: Node3D) -> void:
 		dossier_hp_bar.value = hero.current_hp
 		dossier_hp_text.text = "%d / %d HP" % [hero.current_hp, hero.max_hp]
 		dossier_stats.text = "⚔️ Broadsword: 28 Dmg | 👑 Inspiring Aura (12m)"
-		if ResourceLoader.exists("res://assets/ui/island_lord.png"):
-			dossier_avatar.texture = load("res://assets/ui/island_lord.png")
+		var lord_icon = "res://assets/pixel_art/characters/island_lord_portrait.png"
+		if not ResourceLoader.exists(lord_icon):
+			lord_icon = "res://assets/ui/island_lord.png"
+		if ResourceLoader.exists(lord_icon):
+			dossier_avatar.texture = load(lord_icon)
 
 	elif first is Catapult:
 		var cat: Catapult = first
@@ -1104,8 +1110,60 @@ func setup_single_dossier(first: Node3D) -> void:
 		dossier_hp_text.text = "%d / %d HP" % [v.current_hp, v.max_hp]
 		var cargo = "None" if v.carried_amount == 0 else "%d %s" % [v.carried_amount, v.carried_type.capitalize()]
 		dossier_stats.text = "🎒 Cargo: %s | 🏃 Speed: %.1f | Status: %s" % [cargo, v.move_speed, UnitBase.State.keys()[v.state]]
-		if ResourceLoader.exists(ICON_IDLE_VILLAGER):
-			dossier_avatar.texture = load(ICON_IDLE_VILLAGER)
+		var v_icon = "res://assets/pixel_art/characters/villager_portrait.png"
+		if not ResourceLoader.exists(v_icon):
+			v_icon = ICON_IDLE_VILLAGER
+		if ResourceLoader.exists(v_icon):
+			dossier_avatar.texture = load(v_icon)
+
+	elif first is MilitaryUnit:
+		var m: MilitaryUnit = first
+		dossier_name.text = m.unit_name
+		dossier_type_badge.text = "[" + m.team.capitalize() + " " + m.military_type.capitalize() + "]"
+		dossier_hp_bar.max_value = m.max_hp
+		dossier_hp_bar.value = m.current_hp
+		dossier_hp_text.text = "%d / %d HP" % [m.current_hp, m.max_hp]
+		dossier_stats.text = "⚔️ Attack: %d | 🏃 Speed: %.1f | Range: %.1fm" % [m.attack_damage, m.move_speed, m.attack_range]
+		var port_map = {
+			"spearman": "res://assets/pixel_art/characters/spearman_portrait.png",
+			"archer": "res://assets/pixel_art/characters/archer_portrait.png",
+			"corsair_raider": "res://assets/pixel_art/characters/corsair_raider_portrait.png",
+			"barbarian": "res://assets/pixel_art/characters/clan_berserker_portrait.png",
+			"clan_berserker": "res://assets/pixel_art/characters/clan_berserker_portrait.png",
+			"dread_captain": "res://assets/pixel_art/characters/dread_captain_portrait.png",
+			"clan_chieftain": "res://assets/pixel_art/characters/clan_berserker_portrait.png"
+		}
+		var port_path = port_map.get(m.military_type, "res://assets/ui/icon_barracks.png")
+		if ResourceLoader.exists(port_path):
+			dossier_avatar.texture = load(port_path)
+
+	elif first is ResourceNode:
+		var rn: ResourceNode = first
+		var r_name = rn.resource_type.capitalize()
+		if rn.sub_type != "":
+			r_name = "%s (%s)" % [rn.resource_type.capitalize(), rn.sub_type.capitalize()]
+		dossier_name.text = r_name
+		dossier_type_badge.text = "[Natural Resource]"
+		dossier_hp_bar.max_value = rn.max_amount
+		dossier_hp_bar.value = rn.amount_remaining
+		dossier_hp_text.text = "%d / %d Reserves" % [rn.amount_remaining, rn.max_amount]
+		dossier_stats.text = "Yield: %s | Gatherers harvest 2 per cycle" % rn.resource_type.capitalize()
+		var res_icon = "res://assets/pixel_art/environment/tree_pine_01.png"
+		if rn.resource_type == "wood":
+			if rn.sub_type == "oak":
+				res_icon = "res://assets/pixel_art/environment/tree_oak_01.png"
+			elif rn.sub_type == "palm":
+				res_icon = "res://assets/pixel_art/environment/tree_palm_01.png"
+			else:
+				res_icon = "res://assets/pixel_art/environment/tree_pine_01.png"
+		elif rn.resource_type == "food":
+			res_icon = "res://assets/pixel_art/environment/bush_berry_stage3.png"
+		elif rn.resource_type == "stone":
+			res_icon = "res://assets/pixel_art/items/item_crag_granite_01.png"
+		elif rn.resource_type == "gold":
+			res_icon = "res://assets/pixel_art/items/item_ore_gold_01.png"
+		if ResourceLoader.exists(res_icon):
+			dossier_avatar.texture = load(res_icon)
 
 	elif first is UnitBase:
 		var u: UnitBase = first

@@ -2,14 +2,16 @@ class_name ResourceNode
 extends Node3D
 
 @export var resource_type: String = "wood"
+@export var sub_type: String = ""
 @export var amount_remaining: int = 150
 @export var max_amount: int = 150
 
 var is_selected: bool = false
 var selection_ring: MeshInstance3D
 
-func setup(type: String, pos: Vector3, amount: int) -> void:
+func setup(type: String, pos: Vector3, amount: int, variant: String = "") -> void:
 	resource_type = type
+	sub_type = variant
 	amount_remaining = amount
 	max_amount = amount
 	if is_inside_tree():
@@ -24,17 +26,35 @@ func setup(type: String, pos: Vector3, amount: int) -> void:
 func build_visual() -> void:
 	match resource_type:
 		"wood":
-			var tree_path = "res://assets/models/pixel_tree.glb"
-			if not ResourceLoader.exists(tree_path):
-				tree_path = "res://assets/models/pine_tree.glb"
+			var model_path = "res://assets/models/pixel_tree.glb"
+			var v = sub_type.to_lower()
+			if v == "oak":
+				model_path = "res://assets/models/pixel_tree_oak.glb"
+			elif v == "palm":
+				model_path = "res://assets/models/pixel_tree_palm.glb"
+			elif v == "pine":
+				model_path = "res://assets/models/pixel_tree.glb"
+			elif v == "":
+				var d_center = position.distance_to(Vector3(-50.0, 0.0, 0.0))
+				if d_center > 32.0:
+					model_path = "res://assets/models/pixel_tree_palm.glb"
+				elif d_center < 16.0:
+					model_path = "res://assets/models/pixel_tree_oak.glb"
+				else:
+					model_path = "res://assets/models/pixel_tree.glb"
 
-			if ResourceLoader.exists(tree_path):
-				var p_res = load(tree_path)
+			if not ResourceLoader.exists(model_path):
+				model_path = "res://assets/models/pixel_tree.glb"
+			if not ResourceLoader.exists(model_path):
+				model_path = "res://assets/models/pine_tree.glb"
+
+			if ResourceLoader.exists(model_path):
+				var p_res = load(model_path)
 				if p_res:
 					var p_inst = p_res.instantiate()
-					var rand_scale = randf_range(0.95, 1.15)
+					var rand_scale = randf_range(0.92, 1.15)
 					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
-					p_inst.rotation.y = randf_range(-0.30, 0.30)
+					p_inst.rotation.y = randf_range(-PI, PI)
 					enable_vertex_colors(p_inst)
 					add_child(p_inst)
 					return

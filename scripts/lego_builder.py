@@ -81,7 +81,7 @@ def init_materials():
     MATERIALS["WHITE"] = create_lego_material("Mat_White", (0.92, 0.91, 0.88, 1.0), roughness=0.24)
     MATERIALS["BROWN"] = create_lego_material("Mat_Brown", (0.36, 0.20, 0.12, 1.0), roughness=0.30)
     MATERIALS["DARK_BROWN"] = create_lego_material("Mat_DarkBrown", (0.22, 0.12, 0.07, 1.0), roughness=0.32)
-    MATERIALS["GOLD"] = create_lego_material("Mat_Gold", (0.95, 0.76, 0.14, 1.0), roughness=0.18, metallic=0.45)
+    MATERIALS["GOLD"] = create_lego_material("Mat_Gold", (1.0, 0.84, 0.15, 1.0), roughness=0.16, metallic=0.85)
     MATERIALS["BLUE"] = create_lego_material("Mat_Blue", (0.08, 0.30, 0.72, 1.0), roughness=0.24)
     MATERIALS["CYAN"] = create_lego_material("Mat_Cyan", (0.12, 0.65, 0.88, 1.0), roughness=0.20)
     MATERIALS["GREEN"] = create_lego_material("Mat_Green", (0.10, 0.45, 0.15, 1.0), roughness=0.25)
@@ -540,82 +540,211 @@ def build_scenic_monolith(output_path: str):
     export_scene(output_path, target_height=6.5)
 
 # =========================================================================
-# 6. LEGO NATURE ASSETS (80% Smaller Micro-LEGO Scale)
+# 6. LEGO NATURE & RESOURCE ASSETS (Redesigned Micro-LEGO Models)
 # =========================================================================
 def build_lego_tree(output_path: str):
+    """Classic Whispering LEGO Pine: Authentic 8-pointed faceted fir needle tiers."""
     reset_scene()
     init_materials()
+
+    # Root buttresses
+    for rx, ry in [(-3, 0), (3, 0), (0, -3), (0, 3)]:
+        add_single_brick(rx, ry, 0, 3, 3, height_plates=3, mat_name="DARK_BROWN", studs=False)
 
     # Brown Trunk (cylinder bricks)
-    add_cylinder_brick(-2, -2, 0, radius_studs=2.0, height_plates=18, mat_name="BROWN", stud=False)
+    add_cylinder_brick(-2, -2, 0, radius_studs=2.5, height_plates=26, mat_name="BROWN", stud=False)
 
-    # 6 Tiered Faceted Foliage Plates with Studs (Classic LEGO Pine Tree!)
+    # 5 Iconic 8-Pointed Star Fir Foliage Tiers
     tiers = [
-        (30, 18, "GREEN"),
-        (25, 24, "GREEN"),
-        (20, 30, "LIME"),
-        (15, 36, "GREEN"),
-        (10, 42, "LIME"),
-        (6, 48, "GREEN"),
+        # (span, arm_w, z, col)
+        (32, 10, 16, "GREEN"),
+        (26, 8, 24, "LIME"),
+        (20, 6, 32, "GREEN"),
+        (14, 4, 40, "LIME"),
+        (8, 3, 48, "GREEN"),
     ]
-    for size, z, col in tiers:
-        half = size // 2
-        add_single_brick(-half, -half, z, size, size, height_plates=4, mat_name=col, studs=True, stud_step=2)
+
+    for span, arm_w, z, col in tiers:
+        core = span // 2
+        arm_len = (span - core) // 2
+        # Center core
+        add_single_brick(-core // 2, -core // 2, z, core, core, height_plates=4, mat_name=col, studs=True, stud_step=2)
+        # 4 Cardinal branches (N, S, E, W)
+        add_single_brick(-arm_w // 2, core // 2, z, arm_w, arm_len, height_plates=3, mat_name=col, studs=True, stud_step=2)
+        add_single_brick(-arm_w // 2, -core // 2 - arm_len, z, arm_w, arm_len, height_plates=3, mat_name=col, studs=True, stud_step=2)
+        add_single_brick(core // 2, -arm_w // 2, z, arm_len, arm_w, height_plates=3, mat_name=col, studs=True, stud_step=2)
+        add_single_brick(-core // 2 - arm_len, -arm_w // 2, z, arm_len, arm_w, height_plates=3, mat_name=col, studs=True, stud_step=2)
+        # 4 Diagonal corner stepped blocks
+        diag_offset = core // 2 - 2
+        diag_size = max(2, arm_len - 1)
+        for dx, dy in [(diag_offset, diag_offset), (-diag_offset - diag_size, diag_offset),
+                       (diag_offset, -diag_offset - diag_size), (-diag_offset - diag_size, -diag_offset - diag_size)]:
+            add_single_brick(dx, dy, z, diag_size, diag_size, height_plates=3, mat_name=col, studs=False)
 
     # Top Pine Cone Spire
-    add_cone(0.0, 0.0, 52 * PLATE_H, 0.55, 2.0, "GREEN")
+    add_cone(0.0, 0.0, 56 * PLATE_H, 0.45, 1.8, "GREEN")
+    export_scene(output_path, target_height=4.4)
 
-    export_scene(output_path, target_height=3.6)
+def build_lego_oak_tree(output_path: str):
+    """Broadleaf Oak Tree: Sturdy branching trunk with organic rounded foliage clumps."""
+    reset_scene()
+    init_materials()
+
+    # Root base
+    for bx, by in [(-4, -4), (2, -4), (-4, 2), (2, 2)]:
+        add_single_brick(bx, by, 0, 4, 4, height_plates=3, mat_name="DARK_BROWN", studs=False)
+
+    # Massive Trunk
+    add_cylinder_brick(-3, -3, 0, radius_studs=3.5, height_plates=22, mat_name="BROWN", stud=False)
+
+    # 4 Branching limbs reaching outward
+    limbs = [
+        (-8, -2, 18, 6, 4),
+        (2, -2, 18, 6, 4),
+        (-2, -8, 18, 4, 6),
+        (-2, 2, 18, 4, 6)
+    ]
+    for lx, ly, lz, lw, ld in limbs:
+        add_single_brick(lx, ly, lz, lw, ld, height_plates=4, mat_name="BROWN", studs=False)
+
+    # 5 Rounded Foliage Clumps (Organic cloud canopy)
+    clumps = [
+        # (cx, cy, base_z, radius)
+        (0, 0, 26, 10),      # Center crown
+        (8, 4, 22, 8),       # East limb
+        (-8, 4, 22, 8),      # West limb
+        (4, -8, 22, 8),      # South limb
+        (-4, 8, 24, 7),      # North limb
+    ]
+
+    for cx, cy, base_z, r in clumps:
+        # Lower layer (Green)
+        add_single_brick(cx - r, cy - r // 2, base_z, r * 2, r, height_plates=4, mat_name="GREEN", studs=False)
+        add_single_brick(cx - r // 2, cy - r, base_z, r, r * 2, height_plates=4, mat_name="GREEN", studs=False)
+        # Upper dome layer (Lime)
+        top_r = max(4, r - 2)
+        add_single_brick(cx - top_r, cy - top_r // 2, base_z + 4, top_r * 2, top_r, height_plates=4, mat_name="LIME", studs=True, stud_step=2)
+        add_single_brick(cx - top_r // 2, cy - top_r, base_z + 4, top_r, top_r * 2, height_plates=4, mat_name="LIME", studs=True, stud_step=2)
+
+    # Accent Red Apples (Studs) nestled in the foliage
+    apple_coords = [(-8, 2, 27), (8, 6, 27), (0, -8, 27), (4, 4, 34), (-4, -2, 34)]
+    for ax, ay, az in apple_coords:
+        add_cylinder_brick(ax, ay, az, radius_studs=1.2, height_plates=4, mat_name="RED", stud=True)
+
+    export_scene(output_path, target_height=4.8)
+
+def build_lego_palm_tree(output_path: str):
+    """Tropical Coconut Palm: Segmented curved trunk and starburst palm fronds."""
+    reset_scene()
+    init_materials()
+
+    # Sand base plate
+    add_single_brick(-5, -5, 0, 10, 10, height_plates=2, mat_name="TAN", studs=True, stud_step=2)
+
+    # Segmented curved trunk rings (15 plates high)
+    for i in range(15):
+        curve_x = math.sin(i * 0.18) * 3.0
+        curve_y = (i * 0.08)
+        z = i * 3
+        col = "BROWN" if i % 2 == 0 else "TAN"
+        add_cylinder_brick(curve_x - 1.8, curve_y - 1.8, z, radius_studs=1.8 - i * 0.03, height_plates=3, mat_name=col, stud=False)
+
+    top_x = math.sin(15 * 0.18) * 3.0
+    top_y = (15 * 0.08)
+    top_z = 45
+
+    # Brown coconuts
+    for cx, cy in [(top_x - 2.0, top_y), (top_x + 1.2, top_y - 1.8), (top_x + 1.2, top_y + 1.8)]:
+        add_cylinder_brick(cx, cy, top_z - 3, radius_studs=1.2, height_plates=4, mat_name="DARK_BROWN", stud=True)
+
+    # Drooping Palm Fronds (6 Radial Arms)
+    for angle_deg in [0, 60, 120, 180, 240, 300]:
+        rad = math.radians(angle_deg)
+        for step in range(1, 5):
+            fx = top_x + math.cos(rad) * (step * 4.5)
+            fy = top_y + math.sin(rad) * (step * 4.5)
+            fz = top_z - step * 2
+            col = "GREEN" if step < 3 else "LIME"
+            add_single_brick(int(fx - 2), int(fy - 2), fz, 4, 4, height_plates=3, mat_name=col, studs=True, stud_step=1)
+
+    export_scene(output_path, target_height=4.5)
 
 def build_lego_stone(output_path: str):
+    """Faceted Granite Crag: Multi-layered crag with basalt base and granite plates."""
     reset_scene()
     init_materials()
 
-    # Faceted Boulder from slope bricks and plates (20x20 studs)
-    add_single_brick(-10, -10, 0, 20, 20, height_plates=4, mat_name="DARK_GREY", studs=True, stud_step=2)
-    add_slope_brick(-10, -10, 4, 10, 10, slope_dir="-Y", height_plates=10, mat_name="STONE_GREY")
-    add_slope_brick(0, -10, 4, 10, 10, slope_dir="+X", height_plates=10, mat_name="DARK_GREY")
-    add_slope_brick(-10, 0, 4, 10, 10, slope_dir="-X", height_plates=10, mat_name="DARK_GREY")
-    add_slope_brick(0, 0, 4, 10, 10, slope_dir="+Y", height_plates=10, mat_name="STONE_GREY")
-    add_single_brick(-5, -5, 14, 10, 10, height_plates=6, mat_name="STONE_GREY", studs=True, stud_step=2)
+    # Basalt dark stone base (22x22 studs)
+    add_single_brick(-11, -11, 0, 22, 22, height_plates=4, mat_name="DARK_GREY", studs=True, stud_step=2)
 
-    export_scene(output_path, target_height=1.8)
+    # Mid Tier Fractured Blocks
+    add_slope_brick(-11, -11, 4, 11, 11, slope_dir="-Y", height_plates=8, mat_name="STONE_GREY")
+    add_slope_brick(0, -11, 4, 11, 11, slope_dir="+X", height_plates=8, mat_name="DARK_GREY")
+    add_slope_brick(-11, 0, 4, 11, 11, slope_dir="-X", height_plates=8, mat_name="DARK_GREY")
+    add_slope_brick(0, 0, 4, 11, 11, slope_dir="+Y", height_plates=8, mat_name="STONE_GREY")
+
+    # Granite shelf plate with rune masonry
+    add_single_brick(-8, -8, 12, 16, 16, height_plates=5, mat_name="TEX_RUNE_STONE" if "TEX_RUNE_STONE" in MATERIALS else "STONE_GREY", studs=True, stud_step=2)
+
+    # Top Crag Peak
+    add_slope_brick(-5, -5, 17, 10, 10, slope_dir="+X", height_plates=6, mat_name="STONE_GREY")
+    add_single_brick(-2, -2, 23, 4, 4, height_plates=4, mat_name="WHITE", studs=True, stud_step=1)
+
+    export_scene(output_path, target_height=2.3)
 
 def build_lego_gold(output_path: str):
+    """Crystalline Gold Mine Vein: Rich glittering gold ore vein with gleaming golden crystal spires."""
     reset_scene()
     init_materials()
 
-    # Dark stone rock vein (20x20 studs)
+    # Obsidian rock foundation (20x20 studs)
     add_single_brick(-10, -10, 0, 20, 20, height_plates=4, mat_name="DARK_GREY", studs=True, stud_step=2)
-    add_slope_brick(-10, -10, 4, 10, 10, slope_dir="-Y", height_plates=10, mat_name="DARK_GREY")
-    add_slope_brick(0, 0, 4, 10, 10, slope_dir="+Y", height_plates=10, mat_name="DARK_GREY")
+    add_slope_brick(-10, -10, 4, 10, 10, slope_dir="-Y", height_plates=6, mat_name="DARK_GREY")
+    add_slope_brick(0, 0, 4, 10, 10, slope_dir="+Y", height_plates=6, mat_name="DARK_GREY")
 
-    # Sparkling Pearl Gold Bricks, Studs, and Crystal Cone
-    add_single_brick(-5, -5, 4, 10, 10, height_plates=10, mat_name="GOLD", studs=True, stud_step=1)
-    add_cylinder_brick(1.5, -4.0, 14, radius_studs=1.5, height_plates=6, mat_name="GOLD", stud=True)
-    add_cylinder_brick(-4.0, 1.5, 14, radius_studs=1.5, height_plates=6, mat_name="GOLD", stud=True)
-    add_cone(0.0, 0.0, 20 * PLATE_H, 0.45, 1.4, "GOLD")
+    # Sparkling Massive Gold Ore Matrix Layer (Dominant gleaming gold!)
+    add_single_brick(-8, -8, 6, 16, 16, height_plates=6, mat_name="GOLD", studs=True, stud_step=1)
+    add_single_brick(-6, -6, 12, 12, 12, height_plates=6, mat_name="GOLD", studs=True, stud_step=1)
 
-    export_scene(output_path, target_height=1.6)
+    # Protruding Gold Crystals and Spires
+    add_cylinder_brick(-4, -4, 18, radius_studs=2.5, height_plates=8, mat_name="GOLD", stud=True)
+    add_cylinder_brick(3, -3, 18, radius_studs=2.0, height_plates=10, mat_name="GOLD", stud=True)
+    add_cylinder_brick(-2, 3, 18, radius_studs=2.2, height_plates=9, mat_name="GOLD", stud=True)
+    add_cylinder_brick(2, 2, 18, radius_studs=1.8, height_plates=12, mat_name="GOLD", stud=True)
+
+    # Golden Gem Pyramid Peaks
+    add_cone(-4.0 * U, -4.0 * U, 26 * PLATE_H, 0.40, 1.2, "GOLD")
+    add_cone(3.0 * U, -3.0 * U, 28 * PLATE_H, 0.35, 1.4, "GOLD")
+    add_cone(0.0, 0.0, 30 * PLATE_H, 0.50, 1.8, "GOLD")
+
+    export_scene(output_path, target_height=2.5)
 
 def build_lego_berry_bush(output_path: str):
+    """Lush Foraging Berry Bush: Rounded organic shrub with 18 vibrant ruby red berries."""
     reset_scene()
     init_materials()
 
-    # Green leaf plates (20x20 studs)
-    add_single_brick(-10, -10, 0, 20, 20, height_plates=6, mat_name="GREEN", studs=True, stud_step=2)
-    add_single_brick(-5, -5, 6, 10, 10, height_plates=6, mat_name="LIME", studs=True, stud_step=2)
+    # Rounded shrub base
+    add_single_brick(-12, -12, 0, 24, 24, height_plates=5, mat_name="GREEN", studs=True, stud_step=2)
+    add_single_brick(-14, -6, 2, 28, 12, height_plates=4, mat_name="LIME", studs=True, stud_step=2)
+    add_single_brick(-6, -14, 2, 12, 28, height_plates=4, mat_name="LIME", studs=True, stud_step=2)
 
-    # Bright Red 1x1 Round Stud Berries
+    # Dome canopy
+    add_single_brick(-9, -9, 5, 18, 18, height_plates=6, mat_name="GREEN", studs=True, stud_step=2)
+    add_single_brick(-5, -5, 11, 10, 10, height_plates=5, mat_name="LIME", studs=True, stud_step=2)
+
+    # 18 Bright Red 1x1 Round Stud Berries
     berry_coords = [
-        (-6.0, -6.0, 6), (6.0, -6.0, 6), (-6.0, 6.0, 6), (6.0, 6.0, 6),
-        (-2.5, 2.5, 12), (2.5, -2.5, 12), (0.0, 0.0, 12),
-        (-5.0, 0.0, 6), (5.0, 0.0, 6), (0.0, -5.0, 6), (0.0, 5.0, 6)
+        (-8.0, -8.0, 6), (8.0, -8.0, 6), (-8.0, 8.0, 6), (8.0, 8.0, 6),
+        (-10.0, 0.0, 5), (10.0, 0.0, 5), (0.0, -10.0, 5), (0.0, 10.0, 5),
+        (-4.0, -4.0, 12), (4.0, -4.0, 12), (-4.0, 4.0, 12), (4.0, 4.0, 12),
+        (-2.0, 0.0, 16), (2.0, 0.0, 16), (0.0, -2.0, 16), (0.0, 2.0, 16),
+        (-6.0, 3.0, 9), (6.0, -3.0, 9)
     ]
     for bx, by, bz in berry_coords:
-        add_cylinder_brick(bx, by, bz, radius_studs=1.0, height_plates=4, mat_name="RED", stud=True)
+        add_cylinder_brick(bx, by, bz, radius_studs=1.2, height_plates=4, mat_name="RED", stud=True)
 
-    export_scene(output_path, target_height=1.4)
+    export_scene(output_path, target_height=1.5)
 
 # =========================================================================
 # EXPORT PIPELINE
@@ -699,6 +828,10 @@ if __name__ == "__main__":
     if target in ["all", "nature", "tree"]:
         print("Assembling 80% Finer LEGO Pine Tree...")
         build_lego_tree(f"{models_dir}/pixel_tree.glb")
+        print("Assembling 80% Finer LEGO Broadleaf Oak Tree...")
+        build_lego_oak_tree(f"{models_dir}/pixel_tree_oak.glb")
+        print("Assembling 80% Finer LEGO Tropical Palm Tree...")
+        build_lego_palm_tree(f"{models_dir}/pixel_tree_palm.glb")
 
     if target in ["all", "nature", "stone"]:
         print("Assembling 80% Finer LEGO Boulder...")

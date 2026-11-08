@@ -86,3 +86,73 @@ func test_clan_berserker_stats() -> Dictionary:
 	if dmg != 18:
 		return {"passed": false, "message": "Clan Berserker damage should be 18"}
 	return {"passed": true}
+
+func test_minifigure_articulated_rig_structure() -> Dictionary:
+	var unit = UnitBase.new()
+	unit._ready()
+
+	var has_rig = is_instance_valid(unit.minifig_root)
+	var has_hips = is_instance_valid(unit.hips_node)
+	var has_legs = is_instance_valid(unit.left_leg_pivot) and is_instance_valid(unit.right_leg_pivot)
+	var has_torso = is_instance_valid(unit.torso_node)
+	var has_head = is_instance_valid(unit.head_node) and is_instance_valid(unit.head_stud)
+	var has_arms = is_instance_valid(unit.left_arm_pivot) and is_instance_valid(unit.right_arm_pivot)
+	unit.free()
+
+	if not (has_rig and has_hips and has_legs and has_torso and has_head and has_arms):
+		return {"passed": false, "message": "Minifigure rig must contain articulated hips, legs, torso, head with stud, and arm pivots"}
+	return {"passed": true}
+
+func test_minifigure_walk_locomotion_swings_pivots() -> Dictionary:
+	var unit = UnitBase.new()
+	unit._ready()
+	unit.velocity = Vector3(5.0, 0.0, 0.0)
+	unit._process_animations(0.2)
+
+	var leg_rotated = abs(unit.left_leg_pivot.rotation.x) > 0.05 or abs(unit.right_leg_pivot.rotation.x) > 0.05
+	var arm_rotated = abs(unit.left_arm_pivot.rotation.x) > 0.05 or abs(unit.right_arm_pivot.rotation.x) > 0.05
+	unit.free()
+
+	if not (leg_rotated and arm_rotated):
+		return {"passed": false, "message": "Locomotion walk cycle should rotate Minifigure leg and arm joint pivots"}
+	return {"passed": true}
+
+func test_nature_tree_varieties_and_gold() -> Dictionary:
+	var oak_node = ResourceNode.new()
+	oak_node.setup("wood", Vector3(10, 0, 10), 200, "oak")
+	var is_oak = oak_node.sub_type == "oak"
+	oak_node.free()
+
+	var palm_node = ResourceNode.new()
+	palm_node.setup("wood", Vector3(30, 0, 30), 180, "palm")
+	var is_palm = palm_node.sub_type == "palm"
+	palm_node.free()
+
+	var gold_node = ResourceNode.new()
+	gold_node.setup("gold", Vector3(25, 0, -20), 350)
+	var is_gold = gold_node.resource_type == "gold"
+	gold_node.free()
+
+	if not (is_oak and is_palm and is_gold):
+		return {"passed": false, "message": "ResourceNode must properly handle oak, palm and crystalline gold assets"}
+	return {"passed": true}
+
+func test_pixel_asset_catalog_quantity() -> Dictionary:
+	var dir = DirAccess.open("res://assets/pixel_art")
+	if not dir:
+		return {"passed": false, "message": "assets/pixel_art folder not found"}
+
+	var count = 0
+	for sub in ["characters", "environment", "items"]:
+		var sdir = DirAccess.open("res://assets/pixel_art/" + sub)
+		if sdir:
+			sdir.list_dir_begin()
+			var fn = sdir.get_next()
+			while fn != "":
+				if fn.ends_with(".png"):
+					count += 1
+				fn = sdir.get_next()
+
+	if count < 200:
+		return {"passed": false, "message": "Expected at least 200 pixel art images, found %d" % count}
+	return {"passed": true}

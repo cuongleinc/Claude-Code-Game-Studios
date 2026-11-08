@@ -40,6 +40,8 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if Engine.get_process_frames() == 80:
 		capture_screenshot()
+	elif Engine.get_process_frames() >= 95 and OS.get_cmdline_args().has("--screenshot"):
+		get_tree().quit(0)
 
 func capture_screenshot() -> void:
 	await RenderingServer.frame_post_draw
@@ -86,13 +88,16 @@ func spawn_player_starter_base() -> void:
 	spawn_military_unit("spearman", island_world.island1_center + Vector3(-0.5, 0.5, 4.0))
 	spawn_military_unit("spearman", island_world.island1_center + Vector3(1.5, 0.5, 4.0))
 	spawn_military_unit("archer", island_world.island1_center + Vector3(0.5, 0.5, 2.2))
-	spawn_knight(island_world.island1_center + Vector3(-2.8, 0.5, 3.5))
+	spawn_knight(island_world.island1_center + Vector3(-3.2, 0.5, 3.8))
+	spawn_hero_commander(island_world.island1_center + Vector3(-1.6, 0.5, 2.2))
 
-	# Landing Beach Corsair Raiders (Western/Southern shore)
+	# Landing Beach Hostile Raiders (Western/Southern shore)
 	var raider1 = spawn_enemy_raider("corsair_raider", island_world.island1_center + Vector3(0.0, 0.5, 12.0))
 	var raider2 = spawn_enemy_raider("corsair_raider", island_world.island1_center + Vector3(2.0, 0.5, 13.0))
+	var raider3 = spawn_enemy_raider("clan_berserker", island_world.island1_center + Vector3(-2.0, 0.5, 14.0))
 	raider1.command_move_to(island_world.island1_center + Vector3(0.0, 0.5, 4.0))
 	raider2.command_move_to(island_world.island1_center + Vector3(1.5, 0.5, 4.0))
+	raider3.command_move_to(island_world.island1_center + Vector3(-0.5, 0.5, 4.0))
 
 func spawn_villager(pos: Vector3) -> Villager:
 	var v = Villager.new()

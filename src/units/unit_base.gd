@@ -34,6 +34,25 @@ var tunic_mat: StandardMaterial3D
 var weapon_node: Node3D
 var hp_bar_fill: MeshInstance3D
 
+# 3D LEGO Minifigure Rig Hierarchy
+var minifig_root: Node3D
+var hips_node: MeshInstance3D
+var left_leg_pivot: Node3D
+var left_leg_mesh: MeshInstance3D
+var right_leg_pivot: Node3D
+var right_leg_mesh: MeshInstance3D
+var torso_node: MeshInstance3D
+var neck_node: MeshInstance3D
+var head_node: Node3D
+var head_cylinder: MeshInstance3D
+var head_stud: MeshInstance3D
+var left_arm_pivot: Node3D
+var left_arm_node: MeshInstance3D
+var left_hand_node: MeshInstance3D
+var right_arm_pivot: Node3D
+var right_arm_node: MeshInstance3D
+var right_hand_node: MeshInstance3D
+
 # Procedural Animation State
 var walk_cycle: float = 0.0
 var idle_cycle: float = 0.0
@@ -61,30 +80,203 @@ func build_visual() -> void:
 	visual_mesh.name = "Visual"
 	add_child(visual_mesh)
 
-	# Torso / Tunic
-	var tunic_mesh = CylinderMesh.new()
-	tunic_mesh.top_radius = 0.3
-	tunic_mesh.bottom_radius = 0.36
-	tunic_mesh.height = 0.8
-	tunic_mat = StandardMaterial3D.new()
-	tunic_mat.albedo_color = Color(0.2, 0.45, 0.85) if team == "player" else Color(0.85, 0.25, 0.2)
-	tunic_node = MeshInstance3D.new()
-	tunic_node.mesh = tunic_mesh
-	tunic_node.material_override = tunic_mat
-	tunic_node.position = Vector3(0.0, 0.5, 0.0)
-	visual_mesh.add_child(tunic_node)
+	minifig_root = Node3D.new()
+	minifig_root.name = "MinifigureRig"
+	visual_mesh.add_child(minifig_root)
 
-	# Head with skin tone
-	var head_mesh = SphereMesh.new()
-	head_mesh.radius = 0.26
-	head_mesh.height = 0.52
-	var h_mat = StandardMaterial3D.new()
-	h_mat.albedo_color = Color(0.96, 0.82, 0.72)
-	var head_node = MeshInstance3D.new()
-	head_node.mesh = head_mesh
-	head_node.material_override = h_mat
-	head_node.position = Vector3(0.0, 1.1, 0.0)
-	visual_mesh.add_child(head_node)
+	# --- Materials: Authentic Glossy LEGO ABS Plastic ---
+	var yellow_mat = StandardMaterial3D.new()
+	yellow_mat.albedo_color = Color(1.0, 0.83, 0.08) # Iconic Minifig Yellow
+	yellow_mat.roughness = 0.22
+
+	tunic_mat = StandardMaterial3D.new()
+	tunic_mat.albedo_color = Color(0.18, 0.46, 0.88) if team == "player" else Color(0.86, 0.22, 0.18)
+	tunic_mat.roughness = 0.20
+
+	var hips_mat = StandardMaterial3D.new()
+	hips_mat.albedo_color = Color(0.22, 0.24, 0.26)
+	hips_mat.roughness = 0.35
+
+	var trousers_mat = StandardMaterial3D.new()
+	trousers_mat.albedo_color = Color(0.12, 0.22, 0.44) if team == "player" else Color(0.35, 0.14, 0.14)
+	trousers_mat.roughness = 0.30
+
+	var black_gloss_mat = StandardMaterial3D.new()
+	black_gloss_mat.albedo_color = Color(0.06, 0.06, 0.06)
+	black_gloss_mat.roughness = 0.15
+
+	# 1. Pelvis / Hips Block
+	hips_node = MeshInstance3D.new()
+	var hips_box = BoxMesh.new()
+	hips_box.size = Vector3(0.34, 0.11, 0.19)
+	hips_node.mesh = hips_box
+	hips_node.material_override = hips_mat
+	hips_node.position = Vector3(0.0, 0.38, 0.0)
+	minifig_root.add_child(hips_node)
+
+	# 2. Left Leg (Pivot at Hip Socket)
+	left_leg_pivot = Node3D.new()
+	left_leg_pivot.name = "LeftLegPivot"
+	left_leg_pivot.position = Vector3(-0.088, 0.36, 0.0)
+	minifig_root.add_child(left_leg_pivot)
+
+	left_leg_mesh = MeshInstance3D.new()
+	var leg_box = BoxMesh.new()
+	leg_box.size = Vector3(0.145, 0.34, 0.17)
+	left_leg_mesh.mesh = leg_box
+	left_leg_mesh.material_override = trousers_mat
+	left_leg_mesh.position = Vector3(0.0, -0.17, 0.0)
+	left_leg_pivot.add_child(left_leg_mesh)
+
+	var left_toe = MeshInstance3D.new()
+	var toe_box = BoxMesh.new()
+	toe_box.size = Vector3(0.145, 0.08, 0.08)
+	left_toe.mesh = toe_box
+	left_toe.material_override = trousers_mat
+	left_toe.position = Vector3(0.0, -0.30, 0.07)
+	left_leg_pivot.add_child(left_toe)
+
+	# 3. Right Leg (Pivot at Hip Socket)
+	right_leg_pivot = Node3D.new()
+	right_leg_pivot.name = "RightLegPivot"
+	right_leg_pivot.position = Vector3(0.088, 0.36, 0.0)
+	minifig_root.add_child(right_leg_pivot)
+
+	right_leg_mesh = MeshInstance3D.new()
+	right_leg_mesh.mesh = leg_box
+	right_leg_mesh.material_override = trousers_mat
+	right_leg_mesh.position = Vector3(0.0, -0.17, 0.0)
+	right_leg_pivot.add_child(right_leg_mesh)
+
+	var right_toe = MeshInstance3D.new()
+	right_toe.mesh = toe_box
+	right_toe.material_override = trousers_mat
+	right_toe.position = Vector3(0.0, -0.30, 0.07)
+	right_leg_pivot.add_child(right_toe)
+
+	# 4. Torso (Trapezoidal Minifigure Chest)
+	torso_node = MeshInstance3D.new()
+	torso_node.name = "Torso"
+	var chest_box = BoxMesh.new()
+	chest_box.size = Vector3(0.36, 0.40, 0.21)
+	torso_node.mesh = chest_box
+	torso_node.material_override = tunic_mat
+	torso_node.position = Vector3(0.0, 0.63, 0.0)
+	minifig_root.add_child(torso_node)
+	tunic_node = torso_node # Preserves hit-flash & test compatibility
+
+	# Shoulder Studs (2 Micro-Studs on top of shoulders)
+	for sx in [-0.14, 0.14]:
+		var s_stud = MeshInstance3D.new()
+		var stud_cyl = CylinderMesh.new()
+		stud_cyl.top_radius = 0.038
+		stud_cyl.bottom_radius = 0.038
+		stud_cyl.height = 0.035
+		s_stud.mesh = stud_cyl
+		s_stud.material_override = tunic_mat
+		s_stud.position = Vector3(sx, 0.21, 0.0)
+		torso_node.add_child(s_stud)
+
+	# 5. Neck Ring
+	neck_node = MeshInstance3D.new()
+	var neck_cyl = CylinderMesh.new()
+	neck_cyl.top_radius = 0.075
+	neck_cyl.bottom_radius = 0.075
+	neck_cyl.height = 0.05
+	neck_node.mesh = neck_cyl
+	neck_node.material_override = yellow_mat
+	neck_node.position = Vector3(0.0, 0.855, 0.0)
+	minifig_root.add_child(neck_node)
+
+	# 6. Cylindrical Head with Top Stud & Cheerful Painted Face
+	head_node = Node3D.new()
+	head_node.name = "HeadNode"
+	head_node.position = Vector3(0.0, 0.99, 0.0)
+	minifig_root.add_child(head_node)
+
+	head_cylinder = MeshInstance3D.new()
+	var head_cyl = CylinderMesh.new()
+	head_cyl.top_radius = 0.125
+	head_cyl.bottom_radius = 0.125
+	head_cyl.height = 0.22
+	head_cylinder.mesh = head_cyl
+	head_cylinder.material_override = yellow_mat
+	head_node.add_child(head_cylinder)
+
+	head_stud = MeshInstance3D.new()
+	var hstud_cyl = CylinderMesh.new()
+	hstud_cyl.top_radius = 0.062
+	hstud_cyl.bottom_radius = 0.062
+	hstud_cyl.height = 0.055
+	head_stud.mesh = hstud_cyl
+	head_stud.material_override = yellow_mat
+	head_stud.position = Vector3(0.0, 0.135, 0.0)
+	head_node.add_child(head_stud)
+
+	# Expressive Painted Minifig Eyes
+	for ex in [-0.046, 0.046]:
+		var eye = MeshInstance3D.new()
+		var eye_mesh = SphereMesh.new()
+		eye_mesh.radius = 0.016
+		eye_mesh.height = 0.032
+		eye.mesh = eye_mesh
+		eye.material_override = black_gloss_mat
+		eye.position = Vector3(ex, 0.025, 0.122)
+		head_node.add_child(eye)
+
+	# Cheerful Classic Smile
+	var smile = MeshInstance3D.new()
+	var smile_box = BoxMesh.new()
+	smile_box.size = Vector3(0.055, 0.012, 0.015)
+	smile.mesh = smile_box
+	smile.material_override = black_gloss_mat
+	smile.position = Vector3(0.0, -0.04, 0.122)
+	head_node.add_child(smile)
+
+	# 7. Left Arm & Articulated C-Clamp Hand
+	left_arm_pivot = Node3D.new()
+	left_arm_pivot.name = "LeftArmPivot"
+	left_arm_pivot.position = Vector3(-0.21, 0.76, 0.0)
+	minifig_root.add_child(left_arm_pivot)
+
+	left_arm_node = MeshInstance3D.new()
+	var arm_box = BoxMesh.new()
+	arm_box.size = Vector3(0.09, 0.28, 0.10)
+	left_arm_node.mesh = arm_box
+	left_arm_node.material_override = tunic_mat
+	left_arm_node.position = Vector3(-0.02, -0.12, 0.02)
+	left_arm_node.rotation_degrees.z = 10.0
+	left_arm_pivot.add_child(left_arm_node)
+
+	left_hand_node = MeshInstance3D.new()
+	var hand_tube = TorusMesh.new()
+	hand_tube.inner_radius = 0.022
+	hand_tube.outer_radius = 0.052
+	left_hand_node.mesh = hand_tube
+	left_hand_node.material_override = yellow_mat
+	left_hand_node.position = Vector3(-0.03, -0.27, 0.04)
+	left_hand_node.rotation_degrees = Vector3(90.0, 0.0, 15.0)
+	left_arm_pivot.add_child(left_hand_node)
+
+	# 8. Right Arm & Articulated C-Clamp Hand (Weapon Grip)
+	right_arm_pivot = Node3D.new()
+	right_arm_pivot.name = "RightArmPivot"
+	right_arm_pivot.position = Vector3(0.21, 0.76, 0.0)
+	minifig_root.add_child(right_arm_pivot)
+
+	right_arm_node = MeshInstance3D.new()
+	right_arm_node.mesh = arm_box
+	right_arm_node.material_override = tunic_mat
+	right_arm_node.position = Vector3(0.02, -0.12, 0.02)
+	right_arm_node.rotation_degrees.z = -10.0
+	right_arm_pivot.add_child(right_arm_node)
+
+	right_hand_node = MeshInstance3D.new()
+	right_hand_node.mesh = hand_tube
+	right_hand_node.material_override = yellow_mat
+	right_hand_node.position = Vector3(0.03, -0.27, 0.04)
+	right_hand_node.rotation_degrees = Vector3(90.0, 0.0, -15.0)
+	right_arm_pivot.add_child(right_hand_node)
 
 func build_collision() -> void:
 	var col = CollisionShape3D.new()
@@ -233,30 +425,36 @@ func _process_animations(delta: float) -> void:
 		if hurt_timer <= 0.0 and tunic_node and tunic_mat:
 			tunic_node.material_override = tunic_mat
 
-	# 2. Attack Lunge Animation
+	# 2. Attack Strike Animation
 	if is_attacking_anim:
 		attack_anim_time += delta
 		var anim_len = 0.32
 		var p = clamp(attack_anim_time / anim_len, 0.0, 1.0)
 		if p < 0.35:
-			# Windup
+			# Windup: Minifig pulls arm back
 			var w_pct = p / 0.35
-			visual_mesh.position.z = w_pct * 0.22
-			visual_mesh.rotation.x = -w_pct * 0.15
+			visual_mesh.position.z = w_pct * 0.16
+			visual_mesh.rotation.x = -w_pct * 0.12
+			if right_arm_pivot:
+				right_arm_pivot.rotation.x = -w_pct * deg_to_rad(75.0)
 			if weapon_node:
 				weapon_node.rotation.x = deg_to_rad(25.0) - w_pct * 0.4
 		elif p < 0.7:
-			# Rapid forward strike
+			# Rapid forward strike: Minifig chops arm forward
 			var s_pct = (p - 0.35) / 0.35
-			visual_mesh.position.z = 0.22 - s_pct * 0.65
-			visual_mesh.rotation.x = -0.15 + s_pct * 0.35
+			visual_mesh.position.z = 0.16 - s_pct * 0.42
+			visual_mesh.rotation.x = -0.12 + s_pct * 0.26
+			if right_arm_pivot:
+				right_arm_pivot.rotation.x = -deg_to_rad(75.0) + s_pct * deg_to_rad(150.0)
 			if weapon_node:
 				weapon_node.rotation.x = deg_to_rad(25.0) + s_pct * 0.6
 		else:
-			# Recovery
+			# Recovery: return to rest
 			var r_pct = (p - 0.7) / 0.3
-			visual_mesh.position.z = -0.43 + r_pct * 0.43
-			visual_mesh.rotation.x = 0.20 - r_pct * 0.20
+			visual_mesh.position.z = -0.26 + r_pct * 0.26
+			visual_mesh.rotation.x = 0.14 - r_pct * 0.14
+			if right_arm_pivot:
+				right_arm_pivot.rotation.x = lerpf(right_arm_pivot.rotation.x, 0.0, delta * 12.0)
 			if weapon_node:
 				weapon_node.rotation.x = lerpf(weapon_node.rotation.x, deg_to_rad(25.0), delta * 12.0)
 
@@ -266,18 +464,38 @@ func _process_animations(delta: float) -> void:
 			visual_mesh.rotation.x = 0.0
 		return
 
-	# 3. Locomotion / Walk Cycle (Springy Bobbing & Lean)
+	# 3. Locomotion / Minifigure Walk Cycle (Leg & Arm Joint Swinging)
 	if velocity.length_squared() > 0.1:
-		walk_cycle += delta * move_speed * 2.4
-		visual_mesh.position.y = abs(sin(walk_cycle)) * 0.14
-		visual_mesh.rotation.z = -sin(walk_cycle) * 0.08
-		visual_mesh.rotation.x = 0.12
+		walk_cycle += delta * move_speed * 2.8
+		var leg_swing = sin(walk_cycle) * 0.65
+		if left_leg_pivot:
+			left_leg_pivot.rotation.x = leg_swing
+		if right_leg_pivot:
+			right_leg_pivot.rotation.x = -leg_swing
+		if left_arm_pivot:
+			left_arm_pivot.rotation.x = -leg_swing * 0.8
+		if right_arm_pivot and not is_attacking_anim:
+			right_arm_pivot.rotation.x = leg_swing * 0.8
+
+		# Characteristic springy Minifigure step bob
+		visual_mesh.position.y = abs(sin(walk_cycle * 2.0)) * 0.06
+		visual_mesh.rotation.z = -sin(walk_cycle) * 0.04
+		visual_mesh.rotation.x = 0.08
 		if weapon_node:
 			weapon_node.rotation.x = deg_to_rad(25.0) + sin(walk_cycle) * 0.25
 	else:
-		# 4. Idle Breathing
+		# 4. Idle Breathing & Gentle Arm Rest
 		idle_cycle += delta
-		visual_mesh.position.y = sin(idle_cycle * 2.4) * 0.03
+		if left_leg_pivot:
+			left_leg_pivot.rotation.x = lerpf(left_leg_pivot.rotation.x, 0.0, delta * 10.0)
+		if right_leg_pivot:
+			right_leg_pivot.rotation.x = lerpf(right_leg_pivot.rotation.x, 0.0, delta * 10.0)
+		if left_arm_pivot:
+			left_arm_pivot.rotation.x = lerpf(left_arm_pivot.rotation.x, sin(idle_cycle * 2.0) * 0.06, delta * 8.0)
+		if right_arm_pivot and not is_attacking_anim:
+			right_arm_pivot.rotation.x = lerpf(right_arm_pivot.rotation.x, -sin(idle_cycle * 2.0) * 0.06, delta * 8.0)
+
+		visual_mesh.position.y = sin(idle_cycle * 2.4) * 0.02
 		visual_mesh.position.z = lerpf(visual_mesh.position.z, 0.0, delta * 10.0)
 		visual_mesh.rotation.x = lerpf(visual_mesh.rotation.x, 0.0, delta * 10.0)
 		visual_mesh.rotation.z = lerpf(visual_mesh.rotation.z, 0.0, delta * 10.0)
