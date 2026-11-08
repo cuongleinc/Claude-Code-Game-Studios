@@ -64,6 +64,7 @@ func spawn_enemy(type: String, pos: Vector3) -> MilitaryUnit:
 	unit.team = "enemy"
 	add_child(unit)
 	unit.global_position = pos
+	unit.add_to_group("enemy_units")
 	defenders.append(unit)
 	return unit
 

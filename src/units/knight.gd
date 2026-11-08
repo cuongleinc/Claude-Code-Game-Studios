@@ -37,3 +37,45 @@ func build_knight_visual() -> void:
 	ring.material_override = r_mat
 	ring.position = Vector3(0.0, 0.05, 0.0)
 	add_child(ring)
+
+	# Knight Cavalry Lance
+	var lance = MeshInstance3D.new()
+	var cyl = CylinderMesh.new()
+	cyl.top_radius = 0.03
+	cyl.bottom_radius = 0.07
+	cyl.height = 2.4
+	var l_mat = StandardMaterial3D.new()
+	l_mat.albedo_color = Color(0.9, 0.8, 0.3)
+	l_mat.metallic = 0.85
+	lance.mesh = cyl
+	lance.material_override = l_mat
+	lance.position = Vector3(0.5, 1.0, -0.4)
+	lance.rotation_degrees.x = 45.0
+	visual_mesh.add_child(lance)
+	weapon_node = lance
+
+func _process_animations(delta: float) -> void:
+	if not visual_mesh or is_dying:
+		return
+
+	# Hit flash recovery
+	if hurt_timer > 0.0:
+		hurt_timer -= delta
+		if hurt_timer <= 0.0 and tunic_node and tunic_mat:
+			tunic_node.material_override = tunic_mat
+
+	# Attack lunge
+	if is_attacking_anim:
+		super._process_animations(delta)
+		return
+
+	# Galloping Steed Locomotion
+	if velocity.length_squared() > 0.1:
+		walk_cycle += delta * move_speed * 1.5
+		visual_mesh.position.y = abs(sin(walk_cycle * 2.2)) * 0.2
+		visual_mesh.rotation.z = -sin(walk_cycle) * 0.09
+		visual_mesh.rotation.x = 0.15 + sin(walk_cycle * 2.2) * 0.05
+		if weapon_node:
+			weapon_node.rotation.x = deg_to_rad(45.0) + sin(walk_cycle * 2.2) * 0.22
+	else:
+		super._process_animations(delta)

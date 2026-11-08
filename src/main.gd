@@ -35,7 +35,7 @@ func _ready() -> void:
 	$CanvasLayer.add_child(drag_rect)
 
 func _process(_delta: float) -> void:
-	if Engine.get_process_frames() == 20:
+	if Engine.get_process_frames() == 80:
 		capture_screenshot()
 
 func capture_screenshot() -> void:
@@ -61,6 +61,13 @@ func spawn_player_starter_base() -> void:
 	house.setup("house", island_world.island1_center + Vector3(6.5, 0.0, -3.0), "player", true)
 	house.add_to_group("player_buildings")
 
+	# Starter Barracks for Military Training
+	var barracks = BuildingBase.new()
+	add_child(barracks)
+	barracks.setup("barracks", island_world.island1_center + Vector3(0.0, 0.0, -6.5), "player", true)
+	barracks.add_to_group("player_buildings")
+	barracks.unit_trained.connect(_on_unit_trained)
+
 	# Free 3D Model Demo (Imported Game-Ready Cottage)
 	if ResourceLoader.exists("res://assets/models/free_cottage.glb"):
 		var free_res = load("res://assets/models/free_cottage.glb")
@@ -70,14 +77,22 @@ func spawn_player_starter_base() -> void:
 			free_inst.scale = Vector3(2.5, 2.5, 2.5)
 			add_child(free_inst)
 
-	# 3 Starting Villagers
-	var offsets = [
-		Vector3(4.0, 0.5, 2.0),
-		Vector3(2.0, 0.5, 4.0),
-		Vector3(-3.0, 0.5, 3.0)
-	]
-	for off in offsets:
-		spawn_villager(island_world.island1_center + off)
+	# 3 Starting Villagers working the land
+	spawn_villager(island_world.island1_center + Vector3(-5.0, 0.5, 1.5))
+	spawn_villager(island_world.island1_center + Vector3(5.5, 0.5, -2.5))
+	spawn_villager(island_world.island1_center + Vector3(6.5, 0.5, 3.5))
+
+	# Starter Defensive Military Garrison stationed at town front
+	spawn_military_unit("spearman", island_world.island1_center + Vector3(-0.5, 0.5, 4.0))
+	spawn_military_unit("spearman", island_world.island1_center + Vector3(1.5, 0.5, 4.0))
+	spawn_military_unit("archer", island_world.island1_center + Vector3(0.5, 0.5, 2.2))
+	spawn_knight(island_world.island1_center + Vector3(-2.8, 0.5, 3.5))
+
+	# Landing Beach Corsair Raiders (Western/Southern shore)
+	var raider1 = spawn_enemy_raider("corsair_raider", island_world.island1_center + Vector3(0.0, 0.5, 12.0))
+	var raider2 = spawn_enemy_raider("corsair_raider", island_world.island1_center + Vector3(2.0, 0.5, 13.0))
+	raider1.command_move_to(island_world.island1_center + Vector3(0.0, 0.5, 4.0))
+	raider2.command_move_to(island_world.island1_center + Vector3(1.5, 0.5, 4.0))
 
 func spawn_villager(pos: Vector3) -> Villager:
 	var v = Villager.new()
@@ -85,6 +100,14 @@ func spawn_villager(pos: Vector3) -> Villager:
 	v.global_position = pos
 	v.add_to_group("player_units")
 	return v
+
+func spawn_enemy_raider(type: String, pos: Vector3) -> MilitaryUnit:
+	var u = MilitaryUnit.new()
+	u.military_type = type
+	u.team = "enemy"
+	add_child(u)
+	u.global_position = pos
+	return u
 
 func spawn_military_unit(type: String, pos: Vector3) -> MilitaryUnit:
 	var u = MilitaryUnit.new()

@@ -76,3 +76,69 @@ func test_projectile_initialization() -> Dictionary:
 	if dmg != 25:
 		return {"passed": false, "message": "Projectile damage should be 25"}
 	return {"passed": true}
+
+func test_attack_animation_trigger() -> Dictionary:
+	var unit = MilitaryUnit.new()
+	unit.military_type = "spearman"
+	unit._ready()
+	unit.trigger_attack_anim()
+	var anim_active = unit.is_attacking_anim
+	var anim_t = unit.attack_anim_time
+	unit.free()
+
+	if not anim_active:
+		return {"passed": false, "message": "Attack animation should be active"}
+	if anim_t != 0.0:
+		return {"passed": false, "message": "Attack animation timer should start at 0.0"}
+	return {"passed": true}
+
+func test_auto_retaliate_on_damage() -> Dictionary:
+	var defender = MilitaryUnit.new()
+	defender.military_type = "spearman"
+	defender._ready()
+
+	var attacker = MilitaryUnit.new()
+	attacker.military_type = "corsair_raider"
+	attacker._ready()
+
+	defender.take_damage(20, attacker)
+	var state_ok = defender.state == UnitBase.State.ATTACKING
+	var target_ok = defender.target_entity == attacker
+
+	defender.free()
+	attacker.free()
+
+	if not state_ok:
+		return {"passed": false, "message": "Defender should switch to ATTACKING state upon being attacked"}
+	if not target_ok:
+		return {"passed": false, "message": "Defender should target the attacker upon retaliation"}
+	return {"passed": true}
+
+func test_slash_effect_initialization() -> Dictionary:
+	var slash_script = load("res://src/combat/slash_effect.gd")
+	var slash = slash_script.new()
+	slash.setup(Vector3(1.0, 2.0, 3.0), Vector3.FORWARD, Color(0.2, 0.8, 1.0))
+	var col_ok = slash.slash_color == Color(0.2, 0.8, 1.0)
+	var spark_count = slash.sparks.size()
+	slash.free()
+
+	if not col_ok:
+		return {"passed": false, "message": "Slash effect color was not set properly"}
+	if spark_count != 4:
+		return {"passed": false, "message": "Slash effect should spawn 4 spark debris meshes"}
+	return {"passed": true}
+
+func test_unit_death_state() -> Dictionary:
+	var unit = MilitaryUnit.new()
+	unit.military_type = "spearman"
+	unit._ready()
+	unit.die()
+	var is_dying_ok = unit.is_dying
+	var is_selected_ok = not unit.is_selected
+
+	unit.free()
+	if not is_dying_ok:
+		return {"passed": false, "message": "Unit should enter dying state upon die()"}
+	if not is_selected_ok:
+		return {"passed": false, "message": "Unit selection should be cleared upon death"}
+	return {"passed": true}

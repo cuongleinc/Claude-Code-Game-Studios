@@ -9,12 +9,14 @@ var target_pos: Vector3
 var progress: float = 0.0
 var total_dist: float = 1.0
 var is_boulder: bool = false
+var attacker_entity: Node3D = null
 
-func setup(p_start: Vector3, p_target: Node3D, p_damage: int, p_is_boulder: bool = false) -> void:
+func setup(p_start: Vector3, p_target: Node3D, p_damage: int, p_is_boulder: bool = false, p_attacker: Node3D = null) -> void:
 	start_pos = p_start
 	target = p_target
 	damage = p_damage
 	is_boulder = p_is_boulder
+	attacker_entity = p_attacker
 	
 	if is_inside_tree():
 		global_position = p_start
@@ -64,7 +66,7 @@ func _process(delta: float) -> void:
 
 	if progress >= 1.0:
 		if is_instance_valid(target) and target.has_method("take_damage"):
-			target.take_damage(damage)
+			target.take_damage(damage, attacker_entity)
 		queue_free()
 		return
 

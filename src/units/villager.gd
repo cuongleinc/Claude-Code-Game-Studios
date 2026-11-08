@@ -41,6 +41,7 @@ func build_villager_visual() -> void:
 	axe.position = Vector3(0.35, 0.5, 0.1)
 	axe.rotation_degrees.x = 25.0
 	visual_mesh.add_child(axe)
+	weapon_node = axe
 
 	# Add backpack indicator
 	backpack_mesh = MeshInstance3D.new()
@@ -81,13 +82,28 @@ func handle_gathering(delta: float) -> void:
 		look_at_safe(gather_target.global_position)
 	else:
 		velocity = Vector3.ZERO
+		look_at_safe(gather_target.global_position)
 		gather_timer += delta
+
+		# Rhythmic woodcutting / mining chopping animation
+		if weapon_node:
+			weapon_node.rotation.x = deg_to_rad(25.0) + sin(gather_timer * 11.0) * 0.75
+		if visual_mesh:
+			visual_mesh.rotation.x = sin(gather_timer * 11.0) * 0.08
+
 		if gather_timer >= 1.0:
 			gather_timer = 0.0
 			var harvested = gather_target.harvest(2)
 			carried_type = gather_target.resource_type
 			carried_amount += harvested
 			backpack_mesh.visible = true
+
+			# Floating harvest gain indicator
+			if is_inside_tree() and get_parent():
+				var ft = FloatingText.new()
+				get_parent().add_child(ft)
+				var c = Color(0.3, 0.9, 0.3) if carried_type == "food" else (Color(0.8, 0.6, 0.2) if carried_type == "wood" else Color(0.8, 0.8, 0.8))
+				ft.setup(global_position + Vector3(0.0, 1.8, 0.0), "+%d %s" % [harvested, carried_type.capitalize()], c)
 
 			if carried_amount >= max_carry:
 				state = State.DELIVERING
