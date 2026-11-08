@@ -3,16 +3,17 @@
 lego_builder.py
 High-Fidelity LEGO Architectural & Modular Kit Assembler for Island Empire.
 Generates genuine LEGO-style models with:
+- 50% smaller micro-LEGO / nanoblock grid resolution for ultra-smooth curves and rich detail
 - Authentic LEGO proportions (studs, plates, bricks, slope roofs, crenellations)
-- Individual staggered brick courses with visible mortar seams and bevels
-- Iconic LEGO color palette (Medium Stone Grey, Dark Stone Grey, Bright Red, Reddish Brown, Pearl Gold)
+- Staggered brick masonry courses with visible mortar seams and bevels
+- Official LEGO color palette (Medium Stone Grey, Dark Stone Grey, Bright Red, Reddish Brown, Pearl Gold)
 - Integrated decals (dragon shields, arched wooden gates, candlelight windows, archery targets)
 - Modular assemblies for:
   * Town Center (Imperial Castle Keep with 4 Bastions, Arched Gate, Pagoda Roofs, and Golden Spires)
   * Pagoda Cottage (Staggered Brick Walls, Upturned Pagoda Eaves, Chimney, Lantern)
   * Military Barracks (Stockade Palisade, Training Dummy with Target, Observation Cupola, Shields)
   * Guard Watchtower (Stone Bastion, Arrow Slits, Corbelled Deck, Signal Fire Brazier)
-  * Nature Assets (Pine Tree with 8-sided needle tiers, Faceted Boulder, Gold Ore Deposit, Berry Bush)
+  * Nature Assets (Pine Tree with 6 needle tiers, Faceted Boulder, Gold Ore Deposit, Berry Bush)
 """
 
 import sys
@@ -21,16 +22,16 @@ import math
 import bpy
 import mathutils
 
-# LEGO Standard Metric Unit Dimensions (in game meters)
-# 1 stud = 0.8m width/length
-# 1 plate = 0.32m height (3 plates = 1 standard brick = 0.96m)
-# 1 stud = 0.22m radius, 0.14m height
-U = 0.8
-PLATE_H = 0.32
+# LEGO Standard Dimensions with 50% Smaller Bricks (Micro-LEGO / Nanoblock Scale)
+# 1 stud = 0.4m width/length (was 0.8m)
+# 1 plate = 0.16m height (was 0.32m; 3 plates = 1 standard brick = 0.48m)
+# 1 stud radius = 0.11m, height = 0.07m
+U = 0.4
+PLATE_H = 0.16
 BRICK_H = PLATE_H * 3.0
-STUD_R = 0.22
-STUD_H = 0.14
-SEAM = 0.018 # Crisp brick joint seam gap
+STUD_R = 0.11
+STUD_H = 0.07
+SEAM = 0.009 # Fine brick joint seam gap
 
 def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -72,33 +73,20 @@ def create_decal_material(name: str, texture_path: str) -> bpy.types.Material:
 
 MATERIALS = {}
 def init_materials():
-    # Official LEGO Color Matches
-    # Medium Stone Grey / Light Bluish Gray (#9C9C9C)
     MATERIALS["STONE_GREY"] = create_lego_material("Mat_StoneGrey", (0.52, 0.55, 0.58, 1.0), roughness=0.28)
-    # Dark Stone Grey / Dark Bluish Gray (#595D60)
     MATERIALS["DARK_GREY"] = create_lego_material("Mat_DarkGrey", (0.28, 0.30, 0.33, 1.0), roughness=0.28)
-    # Bright Red (#C91A09)
     MATERIALS["RED"] = create_lego_material("Mat_Red", (0.82, 0.10, 0.08, 1.0), roughness=0.22)
-    # Dark Red (#720E0F)
     MATERIALS["DARK_RED"] = create_lego_material("Mat_DarkRed", (0.46, 0.08, 0.08, 1.0), roughness=0.25)
-    # Warm Tan / Brick Yellow (#D9BB7B / #E4CD9E)
     MATERIALS["TAN"] = create_lego_material("Mat_Tan", (0.86, 0.78, 0.65, 1.0), roughness=0.26)
     MATERIALS["WHITE"] = create_lego_material("Mat_White", (0.92, 0.91, 0.88, 1.0), roughness=0.24)
-    # Reddish Brown (#582A12)
     MATERIALS["BROWN"] = create_lego_material("Mat_Brown", (0.36, 0.20, 0.12, 1.0), roughness=0.30)
     MATERIALS["DARK_BROWN"] = create_lego_material("Mat_DarkBrown", (0.22, 0.12, 0.07, 1.0), roughness=0.32)
-    # Pearl Gold (#AA7F2E / #DEAC34)
     MATERIALS["GOLD"] = create_lego_material("Mat_Gold", (0.92, 0.72, 0.14, 1.0), roughness=0.18, metallic=0.35)
-    # Royal Blue (#0055BF)
     MATERIALS["BLUE"] = create_lego_material("Mat_Blue", (0.08, 0.30, 0.72, 1.0), roughness=0.24)
-    # Dark Green (#184E29)
     MATERIALS["GREEN"] = create_lego_material("Mat_Green", (0.10, 0.45, 0.15, 1.0), roughness=0.25)
-    # Bright Green / Lime (#4B9F4A)
     MATERIALS["LIME"] = create_lego_material("Mat_Lime", (0.35, 0.68, 0.18, 1.0), roughness=0.25)
-    # Trans-Flame
     MATERIALS["FLAME"] = create_lego_material("Mat_Flame", (1.0, 0.5, 0.05, 1.0), roughness=0.10, emission=(1.0, 0.45, 0.05, 1.0))
 
-    # PixelLab Decals
     decal_dir = "/Users/cuong.le/Document/build-the-game/assets/lego"
     MATERIALS["DECAL_DOOR"] = create_decal_material("Mat_DecalDoor", f"{decal_dir}/decal_door.png")
     MATERIALS["DECAL_SHIELD"] = create_decal_material("Mat_DecalShield", f"{decal_dir}/decal_shield.png")
@@ -108,7 +96,7 @@ def init_materials():
 # Geometry Helpers
 def add_stud(x: float, y: float, z: float, mat_name: str = "STONE_GREY"):
     bpy.ops.mesh.primitive_cylinder_add(
-        vertices=12,
+        vertices=10,
         radius=STUD_R,
         depth=STUD_H,
         location=(x, y, z + STUD_H / 2.0)
@@ -118,7 +106,6 @@ def add_stud(x: float, y: float, z: float, mat_name: str = "STONE_GREY"):
     return obj
 
 def add_single_brick(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y: int, height_plates: int = 3, mat_name: str = "STONE_GREY", studs: bool = True):
-    """Adds a single discrete LEGO brick with distinct seam clearance and studs."""
     w = studs_x * U - SEAM
     l = studs_y * U - SEAM
     h = height_plates * PLATE_H - SEAM * 0.5
@@ -142,21 +129,17 @@ def add_single_brick(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y
     return obj
 
 def add_brick_wall(start_gx: int, start_gy: int, start_gz_plates: int, studs_length: int, thickness_studs: int, height_bricks: int, axis: str = "X", mat_name: str = "STONE_GREY", studs: bool = False):
-    """
-    Builds a realistic LEGO masonry wall out of interlocking 1x2, 1x4 and 2x2 bricks
-    with authentic staggered brick courses!
-    """
+    """Interlocking staggered brick courses for realistic fine masonry."""
     for b_idx in range(height_bricks):
         cur_z = start_gz_plates + b_idx * 3
         is_top = (b_idx == height_bricks - 1) and studs
-        offset = (b_idx % 2) * 1 # stagger by 1 stud every layer
+        offset = (b_idx % 2) * 2 # 2-stud stagger
 
         pos = 0
         while pos < studs_length:
-            # Choose brick size: 4, 2, or 1
             remaining = studs_length - pos
-            if pos == 0 and offset == 1 and remaining > 1:
-                cur_len = 1
+            if pos == 0 and offset == 2 and remaining > 2:
+                cur_len = 2
             elif remaining >= 4:
                 cur_len = 4
             elif remaining >= 2:
@@ -171,7 +154,7 @@ def add_brick_wall(start_gx: int, start_gy: int, start_gz_plates: int, studs_len
             pos += cur_len
 
 def add_slope_brick(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y: int, slope_dir: str = "+Y", height_plates: int = 3, mat_name: str = "RED"):
-    """Creates a 45-degree LEGO slope brick."""
+    """Creates a 45-degree slope brick."""
     w = studs_x * U - SEAM
     l = studs_y * U - SEAM
     h = height_plates * PLATE_H - SEAM * 0.5
@@ -186,28 +169,28 @@ def add_slope_brick(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y:
         (x0, y0 + l, z0),      # 3: bottom-NW
     ]
 
-    if slope_dir == "+Y": # Slopes down towards +Y (front)
+    if slope_dir == "+Y": # Slopes down towards +Y
         verts.extend([
-            (x0, y0, z0 + h),          # 4: top-SW
-            (x0 + w, y0, z0 + h),      # 5: top-SE
-            (x0 + w, y0 + l, z0),      # 6: top-NE (base)
-            (x0, y0 + l, z0),          # 7: top-NW (base)
+            (x0, y0, z0 + h),          # 4
+            (x0 + w, y0, z0 + h),      # 5
+            (x0 + w, y0 + l, z0),      # 6
+            (x0, y0 + l, z0),          # 7
         ])
-    elif slope_dir == "-Y": # Slopes down towards -Y (back)
+    elif slope_dir == "-Y": # Slopes down towards -Y
         verts.extend([
             (x0, y0, z0),              # 4
             (x0 + w, y0, z0),          # 5
             (x0 + w, y0 + l, z0 + h),  # 6
             (x0, y0 + l, z0 + h),      # 7
         ])
-    elif slope_dir == "+X": # Slopes down towards +X (right)
+    elif slope_dir == "+X": # Slopes down towards +X
         verts.extend([
             (x0, y0, z0 + h),          # 4
             (x0 + w, y0, z0),          # 5
             (x0 + w, y0 + l, z0),      # 6
             (x0, y0 + l, z0 + h),      # 7
         ])
-    else: # Slopes down towards -X (left)
+    else: # Slopes down towards -X
         verts.extend([
             (x0, y0, z0),              # 4
             (x0 + w, y0, z0 + h),      # 5
@@ -233,20 +216,17 @@ def add_slope_brick(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y:
     return obj
 
 def add_crenellation(gx: float, gy: float, gz_plates: int, studs_x: int, studs_y: int, mat_name: str = "STONE_GREY"):
-    """Castle parapet battlements with merlons and embrasures."""
-    # Base walkway plate
+    """Battlement parapet with merlons and embrasures."""
     add_single_brick(gx, gy, gz_plates, studs_x, studs_y, height_plates=1, mat_name="DARK_GREY", studs=False)
-    # Merlons around perimeter
-    for ix in range(studs_x):
-        for iy in range(studs_y):
-            # Only perimeter
-            is_edge = (ix == 0 or ix == studs_x - 1 or iy == 0 or iy == studs_y - 1)
-            if is_edge and (ix + iy) % 2 == 0:
-                add_single_brick(gx + ix, gy + iy, gz_plates + 1, 1, 1, height_plates=2, mat_name=mat_name, studs=True)
+    for ix in range(0, studs_x, 2):
+        for iy in range(0, studs_y, 2):
+            is_edge = (ix == 0 or ix >= studs_x - 2 or iy == 0 or iy >= studs_y - 2)
+            if is_edge:
+                add_single_brick(gx + ix, gy + iy, gz_plates + 1, 2, 2, height_plates=2, mat_name=mat_name, studs=True)
 
-def add_cylinder_brick(gx: float, gy: float, gz_plates: int, radius_studs: float = 0.5, height_plates: int = 3, mat_name: str = "BROWN", stud: bool = True):
-    cx = (gx + 0.5) * U
-    cy = (gy + 0.5) * U
+def add_cylinder_brick(gx: float, gy: float, gz_plates: int, radius_studs: float = 1.0, height_plates: int = 3, mat_name: str = "BROWN", stud: bool = True):
+    cx = (gx + radius_studs) * U
+    cy = (gy + radius_studs) * U
     h = height_plates * PLATE_H - SEAM * 0.5
     cz = gz_plates * PLATE_H + (height_plates * PLATE_H) / 2.0
 
@@ -267,7 +247,7 @@ def add_cone(cx: float, cy: float, cz: float, radius: float, height: float, mat_
     bpy.ops.mesh.primitive_cone_add(
         vertices=16,
         radius1=radius,
-        radius2=0.04,
+        radius2=0.03,
         depth=height,
         location=(cx, cy, cz + height / 2.0)
     )
@@ -276,7 +256,6 @@ def add_cone(cx: float, cy: float, cz: float, radius: float, height: float, mat_
     return obj
 
 def add_decal_tile(cx: float, cy: float, cz: float, width: float, height: float, decal_mat_name: str, normal: str = "+Y"):
-    """Places a printed LEGO tile decal."""
     bpy.ops.mesh.primitive_plane_add(size=1.0)
     plane = bpy.context.active_object
     plane.data.materials.append(MATERIALS[decal_mat_name])
@@ -298,251 +277,254 @@ def add_decal_tile(cx: float, cy: float, cz: float, width: float, height: float,
     return plane
 
 # =========================================================================
-# 1. LEGO IMPERIAL TOWN CENTER / CASTLE KEEP
+# 1. LEGO IMPERIAL TOWN CENTER / CASTLE KEEP (50% Smaller Bricks)
 # =========================================================================
 def build_lego_town_center(output_path: str):
     reset_scene()
     init_materials()
 
-    # Dark Stone Foundation (14x12 studs)
-    add_single_brick(-7, -6, 0, 14, 12, height_plates=1, mat_name="DARK_GREY", studs=True)
+    # Dark Stone Foundation (28x24 studs)
+    add_single_brick(-14, -12, 0, 28, 24, height_plates=2, mat_name="DARK_GREY", studs=True)
 
-    # 4 Corner Watchtower Bastions (3x3 studs each, 5 bricks tall = 15 plates)
-    towers = [(-6, -5), (3, -5), (-6, 2), (3, 2)]
+    # 4 Corner Watchtower Bastions (6x6 studs each, 10 bricks tall = 30 plates)
+    towers = [(-12, -10), (6, -10), (-12, 4), (6, 4)]
     for tx, ty in towers:
-        # Masonry stone walls
-        add_brick_wall(tx, ty, 1, 3, 3, height_bricks=5, axis="X", mat_name="STONE_GREY")
-        # Overhanging battlement deck with crenellations
-        add_crenellation(tx - 0.5, ty - 0.5, 16, 4, 4, mat_name="STONE_GREY")
+        add_brick_wall(tx, ty, 2, 6, 6, height_bricks=10, axis="X", mat_name="STONE_GREY")
+        # Overhanging battlement deck with crenellations (8x8 studs)
+        add_crenellation(tx - 1, ty - 1, 32, 8, 8, mat_name="STONE_GREY")
         # Corner gold spire finial on each tower
-        add_cone((tx + 1.5) * U, (ty + 1.5) * U, 19 * PLATE_H, 0.40, 1.3, "GOLD")
+        add_cone((tx + 3) * U, (ty + 3) * U, 36 * PLATE_H, 0.40, 1.5, "GOLD")
 
     # Curtain Walls (Connecting towers to gatehouse)
-    add_brick_wall(-3, -5, 1, 2, 2, height_bricks=3, axis="X", mat_name="STONE_GREY")
-    add_brick_wall(1, -5, 1, 2, 2, height_bricks=3, axis="X", mat_name="STONE_GREY")
-    add_crenellation(-3, -5, 10, 2, 2, mat_name="STONE_GREY")
-    add_crenellation(1, -5, 10, 2, 2, mat_name="STONE_GREY")
+    add_brick_wall(-6, -10, 2, 4, 4, height_bricks=6, axis="X", mat_name="STONE_GREY")
+    add_brick_wall(2, -10, 2, 4, 4, height_bricks=6, axis="X", mat_name="STONE_GREY")
+    add_crenellation(-6, -10, 20, 4, 4, mat_name="STONE_GREY")
+    add_crenellation(2, -10, 20, 4, 4, mat_name="STONE_GREY")
 
     # Front Gatehouse Arch
-    add_single_brick(-1, -5, 1, 2, 2, height_plates=3, mat_name="DARK_GREY", studs=False)
-    add_single_brick(-1, -5, 8, 2, 2, height_plates=4, mat_name="STONE_GREY", studs=False)
-    # Printed Double Wooden Gate Decal (prominently sized)
-    add_decal_tile(0.0, -5 * U - 0.06, 5 * PLATE_H, 2.4, 2.5, "DECAL_DOOR", normal="-Y")
+    add_single_brick(-2, -10, 2, 4, 4, height_plates=6, mat_name="DARK_GREY", studs=False)
+    add_single_brick(-2, -10, 16, 4, 4, height_plates=6, mat_name="STONE_GREY", studs=False)
+    # Printed Double Wooden Gate Decal
+    add_decal_tile(0.0, -10 * U - 0.06, 9 * PLATE_H, 2.6, 2.8, "DECAL_DOOR", normal="-Y")
     # Royal Dragon Shield Crest mounted proudly above the gate
-    add_decal_tile(0.0, -5 * U - 0.08, 11 * PLATE_H, 1.4, 1.4, "DECAL_SHIELD", normal="-Y")
+    add_decal_tile(0.0, -10 * U - 0.08, 20 * PLATE_H, 1.5, 1.5, "DECAL_SHIELD", normal="-Y")
 
-    # MAIN KEEP - Level 1: Stone Great Hall (8x6 studs, z=1 to z=12)
-    add_brick_wall(-4, -3, 1, 8, 6, height_bricks=4, axis="X", mat_name="STONE_GREY")
+    # MAIN KEEP - Level 1: Stone Great Hall (16x12 studs, z=2 to z=26 = 8 bricks tall)
+    add_brick_wall(-8, -6, 2, 16, 12, height_bricks=8, axis="X", mat_name="STONE_GREY")
     # Front Arched Windows with Candlelight
-    add_decal_tile(-2.0 * U, -3 * U - 0.05, 6 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-Y")
-    add_decal_tile(2.0 * U, -3 * U - 0.05, 6 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-Y")
+    add_decal_tile(-4.0 * U, -6 * U - 0.05, 12 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-Y")
+    add_decal_tile(4.0 * U, -6 * U - 0.05, 12 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-Y")
     # Side Arched Windows
-    add_decal_tile(-4 * U - 0.05, 0.0, 6 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-X")
-    add_decal_tile(4 * U + 0.05, 0.0, 6 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="+X")
+    add_decal_tile(-8 * U - 0.05, 0.0, 12 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-X")
+    add_decal_tile(8 * U + 0.05, 0.0, 12 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="+X")
 
-    # Pagoda Eaves Level 1 (Cantilevered Red Slope Bricks, 10x8 studs, z=13 to z=15)
-    for x in range(-5, 5):
-        add_slope_brick(x, -4, 13, 1, 1, slope_dir="-Y", height_plates=2, mat_name="RED")
-        add_slope_brick(x, 3, 13, 1, 1, slope_dir="+Y", height_plates=2, mat_name="RED")
-    for y in range(-3, 3):
-        add_slope_brick(-5, y, 13, 1, 1, slope_dir="-X", height_plates=2, mat_name="RED")
-        add_slope_brick(4, y, 13, 1, 1, slope_dir="+X", height_plates=2, mat_name="RED")
+    # Pagoda Eaves Level 1 (20x16 studs red slope bricks, z=26 to z=29)
+    for x in range(-10, 10, 2):
+        add_slope_brick(x, -8, 26, 2, 2, slope_dir="-Y", height_plates=3, mat_name="RED")
+        add_slope_brick(x, 6, 26, 2, 2, slope_dir="+Y", height_plates=3, mat_name="RED")
+    for y in range(-6, 6, 2):
+        add_slope_brick(-10, y, 26, 2, 2, slope_dir="-X", height_plates=3, mat_name="RED")
+        add_slope_brick(8, y, 26, 2, 2, slope_dir="+X", height_plates=3, mat_name="RED")
 
-    # Level 2: Imperial Pavilion (Warm Tan & Timber Columns, 6x4 studs, z=15 to z=24)
-    add_brick_wall(-3, -2, 15, 6, 4, height_bricks=3, axis="X", mat_name="TAN")
-    # Brown timber-frame corner posts
-    add_single_brick(-3, -2, 15, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(2, -2, 15, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(-3, 1, 15, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(2, 1, 15, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    # Front Candlelight Window on Pavilion
-    add_decal_tile(0.0, -2 * U - 0.05, 19 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-Y")
+    # Level 2: Imperial Pavilion (Warm Tan & Timber Columns, 12x8 studs, z=29 to z=47 = 6 bricks tall)
+    add_brick_wall(-6, -4, 29, 12, 8, height_bricks=6, axis="X", mat_name="TAN")
+    # Brown timber corner posts
+    add_single_brick(-6, -4, 29, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(4, -4, 29, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(-6, 2, 29, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(4, 2, 29, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    # Pavilion front window
+    add_decal_tile(0.0, -4 * U - 0.05, 38 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-Y")
 
-    # Pagoda Eaves Level 2 (8x6 studs, z=24 to z=26)
-    for x in range(-4, 4):
-        add_slope_brick(x, -3, 24, 1, 1, slope_dir="-Y", height_plates=2, mat_name="RED")
-        add_slope_brick(x, 2, 24, 1, 1, slope_dir="+Y", height_plates=2, mat_name="RED")
-    for y in range(-2, 2):
-        add_slope_brick(-4, y, 24, 1, 1, slope_dir="-X", height_plates=2, mat_name="RED")
-        add_slope_brick(3, y, 24, 1, 1, slope_dir="+X", height_plates=2, mat_name="RED")
+    # Pagoda Eaves Level 2 (16x12 studs, z=47 to z=50)
+    for x in range(-8, 8, 2):
+        add_slope_brick(x, -6, 47, 2, 2, slope_dir="-Y", height_plates=3, mat_name="RED")
+        add_slope_brick(x, 4, 47, 2, 2, slope_dir="+Y", height_plates=3, mat_name="RED")
+    for y in range(-4, 4, 2):
+        add_slope_brick(-8, y, 47, 2, 2, slope_dir="-X", height_plates=3, mat_name="RED")
+        add_slope_brick(6, y, 47, 2, 2, slope_dir="+X", height_plates=3, mat_name="RED")
 
-    # Level 3: Golden Observation Throne (4x2 studs, z=26 to z=31)
-    add_single_brick(-2, -1, 26, 4, 2, height_plates=5, mat_name="WHITE", studs=False)
+    # Level 3: Golden Observation Pavilion (8x4 studs, z=50 to z=59)
+    add_single_brick(-4, -2, 50, 8, 4, height_plates=9, mat_name="WHITE", studs=False)
     # Golden columns
-    add_cylinder_brick(-1.5, -0.8, 26, radius_studs=0.25, height_plates=5, mat_name="GOLD", stud=False)
-    add_cylinder_brick(0.5, -0.8, 26, radius_studs=0.25, height_plates=5, mat_name="GOLD", stud=False)
-    add_cylinder_brick(-1.5, 0.2, 26, radius_studs=0.25, height_plates=5, mat_name="GOLD", stud=False)
-    add_cylinder_brick(0.5, 0.2, 26, radius_studs=0.25, height_plates=5, mat_name="GOLD", stud=False)
+    add_cylinder_brick(-3, -1.5, 50, radius_studs=0.5, height_plates=9, mat_name="GOLD", stud=False)
+    add_cylinder_brick(2, -1.5, 50, radius_studs=0.5, height_plates=9, mat_name="GOLD", stud=False)
+    add_cylinder_brick(-3, 0.5, 50, radius_studs=0.5, height_plates=9, mat_name="GOLD", stud=False)
+    add_cylinder_brick(2, 0.5, 50, radius_studs=0.5, height_plates=9, mat_name="GOLD", stud=False)
 
-    # Top Pagoda Roof (6x4 studs, z=31 to z=34)
-    for x in range(-3, 3):
-        add_slope_brick(x, -2, 31, 1, 1, slope_dir="-Y", height_plates=3, mat_name="RED")
-        add_slope_brick(x, 1, 31, 1, 1, slope_dir="+Y", height_plates=3, mat_name="RED")
+    # Top Pagoda Roof (12x8 studs, z=59 to z=65)
+    for x in range(-6, 6, 2):
+        add_slope_brick(x, -4, 59, 2, 2, slope_dir="-Y", height_plates=4, mat_name="RED")
+        add_slope_brick(x, 2, 59, 2, 2, slope_dir="+Y", height_plates=4, mat_name="RED")
     # Golden Ridge and Spire
-    add_single_brick(-1, -1, 34, 2, 2, height_plates=2, mat_name="GOLD", studs=True)
-    add_cone(0.0, 0.0, 36 * PLATE_H, 0.45, 1.8, "GOLD")
+    add_single_brick(-2, -2, 65, 4, 4, height_plates=3, mat_name="GOLD", studs=True)
+    add_cone(0.0, 0.0, 68 * PLATE_H, 0.50, 2.2, "GOLD")
     # Royal Red Pennant Flag
-    add_single_brick(0, 0, 39, 2, 1, height_plates=2, mat_name="RED", studs=False)
+    add_single_brick(0, 0, 74, 4, 1, height_plates=4, mat_name="RED", studs=False)
 
     export_scene(output_path, target_height=9.0)
 
 # =========================================================================
-# 2. LEGO PAGODA COTTAGE / HOUSE
+# 2. LEGO PAGODA COTTAGE / HOUSE (50% Smaller Bricks)
 # =========================================================================
 def build_lego_house(output_path: str):
     reset_scene()
     init_materials()
 
-    # Dark Stone Foundation (8x8 studs)
-    add_single_brick(-4, -4, 0, 8, 8, height_plates=1, mat_name="DARK_GREY", studs=True)
+    # Dark Stone Foundation (16x16 studs)
+    add_single_brick(-8, -8, 0, 16, 16, height_plates=2, mat_name="DARK_GREY", studs=True)
 
-    # Ground Floor: Warm Tan Masonry Walls (6x6 studs, z=1 to z=10 = 3 bricks tall)
-    add_brick_wall(-3, -3, 1, 6, 6, height_bricks=3, axis="X", mat_name="TAN")
-    # Brown timber corner columns
-    add_single_brick(-3, -3, 1, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(2, -3, 1, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(-3, 2, 1, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
-    add_single_brick(2, 2, 1, 1, 1, height_plates=9, mat_name="BROWN", studs=False)
+    # Ground Floor: Warm Tan Masonry Walls (12x12 studs, z=2 to z=20 = 6 bricks tall)
+    add_brick_wall(-6, -6, 2, 12, 12, height_bricks=6, axis="X", mat_name="TAN")
+    # Brown timber corner columns (2x2 studs)
+    add_single_brick(-6, -6, 2, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(4, -6, 2, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(-6, 4, 2, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
+    add_single_brick(4, 4, 2, 2, 2, height_plates=18, mat_name="BROWN", studs=False)
 
-    # Front Wooden Door Decal & Lantern
-    add_decal_tile(0.0, -3 * U - 0.05, 5 * PLATE_H, 1.8, 2.0, "DECAL_DOOR", normal="-Y")
-    add_cylinder_brick(1.8, -3.2, 7, radius_studs=0.25, height_plates=2, mat_name="RED", stud=False)
+    # Front Wooden Door Decal & Hanging Lantern
+    add_decal_tile(0.0, -6 * U - 0.05, 10 * PLATE_H, 2.0, 2.2, "DECAL_DOOR", normal="-Y")
+    add_cylinder_brick(3.5, -6.3, 14, radius_studs=0.5, height_plates=4, mat_name="RED", stud=False)
 
     # Side Arched Window
-    add_decal_tile(-3 * U - 0.05, 0.0, 6 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-X")
+    add_decal_tile(-6 * U - 0.05, 0.0, 11 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-X")
 
-    # Brick Chimney climbing up right flank (22 plates tall)
-    add_brick_wall(3, 0, 1, 1, 2, height_bricks=7, axis="Y", mat_name="DARK_RED")
-    add_single_brick(3, 0, 22, 1, 2, height_plates=2, mat_name="DARK_GREY", studs=True)
+    # Brick Chimney climbing up right flank (44 plates tall)
+    add_brick_wall(6, 0, 2, 2, 4, height_bricks=14, axis="Y", mat_name="DARK_RED")
+    add_single_brick(6, 0, 44, 2, 4, height_plates=3, mat_name="DARK_GREY", studs=True)
 
-    # Lower Pagoda Roof (Cantilevered Red Slope Bricks, 8x8 studs, z=10 to z=13)
-    for x in range(-4, 4):
-        add_slope_brick(x, -4, 10, 1, 1, slope_dir="-Y", height_plates=3, mat_name="RED")
-        add_slope_brick(x, 3, 10, 1, 1, slope_dir="+Y", height_plates=3, mat_name="RED")
-    for y in range(-3, 3):
-        add_slope_brick(-4, y, 10, 1, 1, slope_dir="-X", height_plates=3, mat_name="RED")
-        add_slope_brick(3, y, 10, 1, 1, slope_dir="+X", height_plates=3, mat_name="RED")
+    # Lower Pagoda Roof (Cantilevered Red Slope Bricks, 16x16 studs, z=20 to z=24)
+    for x in range(-8, 8, 2):
+        add_slope_brick(x, -8, 20, 2, 2, slope_dir="-Y", height_plates=4, mat_name="RED")
+        add_slope_brick(x, 6, 20, 2, 2, slope_dir="+Y", height_plates=4, mat_name="RED")
+    for y in range(-6, 6, 2):
+        add_slope_brick(-8, y, 20, 2, 2, slope_dir="-X", height_plates=4, mat_name="RED")
+        add_slope_brick(6, y, 20, 2, 2, slope_dir="+X", height_plates=4, mat_name="RED")
 
-    # Upper Pavilion (4x4 studs, z=13 to z=19 = 2 bricks tall)
-    add_brick_wall(-2, -2, 13, 4, 4, height_bricks=2, axis="X", mat_name="TAN")
-    add_single_brick(-2, -2, 13, 1, 1, height_plates=6, mat_name="BROWN", studs=False)
-    add_single_brick(1, -2, 13, 1, 1, height_plates=6, mat_name="BROWN", studs=False)
-    add_single_brick(-2, 1, 13, 1, 1, height_plates=6, mat_name="BROWN", studs=False)
-    add_single_brick(1, 1, 13, 1, 1, height_plates=6, mat_name="BROWN", studs=False)
+    # Upper Pavilion (8x8 studs, z=24 to z=36 = 4 bricks tall)
+    add_brick_wall(-4, -4, 24, 8, 8, height_bricks=4, axis="X", mat_name="TAN")
+    add_single_brick(-4, -4, 24, 2, 2, height_plates=12, mat_name="BROWN", studs=False)
+    add_single_brick(2, -4, 24, 2, 2, height_plates=12, mat_name="BROWN", studs=False)
+    add_single_brick(-4, 2, 24, 2, 2, height_plates=12, mat_name="BROWN", studs=False)
+    add_single_brick(2, 2, 24, 2, 2, height_plates=12, mat_name="BROWN", studs=False)
     # Upper window
-    add_decal_tile(0.0, -2 * U - 0.05, 16 * PLATE_H, 1.1, 1.1, "DECAL_WINDOW", normal="-Y")
+    add_decal_tile(0.0, -4 * U - 0.05, 30 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-Y")
 
-    # Top Pagoda Roof (6x6 red slope roof, z=19 to z=22)
-    for x in range(-3, 3):
-        add_slope_brick(x, -3, 19, 1, 1, slope_dir="-Y", height_plates=3, mat_name="RED")
-        add_slope_brick(x, 2, 19, 1, 1, slope_dir="+Y", height_plates=3, mat_name="RED")
-    for y in range(-2, 2):
-        add_slope_brick(-3, y, 19, 1, 1, slope_dir="-X", height_plates=3, mat_name="RED")
-        add_slope_brick(2, y, 19, 1, 1, slope_dir="+X", height_plates=3, mat_name="RED")
+    # Top Pagoda Roof (12x12 red slope roof, z=36 to z=42)
+    for x in range(-6, 6, 2):
+        add_slope_brick(x, -6, 36, 2, 2, slope_dir="-Y", height_plates=4, mat_name="RED")
+        add_slope_brick(x, 4, 36, 2, 2, slope_dir="+Y", height_plates=4, mat_name="RED")
+    for y in range(-4, 4, 2):
+        add_slope_brick(-6, y, 36, 2, 2, slope_dir="-X", height_plates=4, mat_name="RED")
+        add_slope_brick(4, y, 36, 2, 2, slope_dir="+X", height_plates=4, mat_name="RED")
 
     # Golden Roof Spire Finial
-    add_single_brick(-1, -1, 22, 2, 2, height_plates=1, mat_name="GOLD", studs=True)
-    add_cone(0.0, 0.0, 23 * PLATE_H, 0.35, 1.2, "GOLD")
+    add_single_brick(-2, -2, 42, 4, 4, height_plates=2, mat_name="GOLD", studs=True)
+    add_cone(0.0, 0.0, 44 * PLATE_H, 0.40, 1.8, "GOLD")
 
     export_scene(output_path, target_height=5.5)
 
 # =========================================================================
-# 3. LEGO MILITARY BARRACKS
+# 3. LEGO MILITARY BARRACKS (50% Smaller Bricks)
 # =========================================================================
 def build_lego_barracks(output_path: str):
     reset_scene()
     init_materials()
 
-    # Dark Stone Foundation (10x8 studs)
-    add_single_brick(-5, -4, 0, 10, 8, height_plates=1, mat_name="DARK_GREY", studs=True)
+    # Dark Stone Foundation (20x16 studs)
+    add_single_brick(-10, -8, 0, 20, 16, height_plates=2, mat_name="DARK_GREY", studs=True)
 
-    # Reddish Brown Timber Log Walls (8x6 studs, 3 bricks tall)
-    add_brick_wall(-4, -3, 1, 8, 6, height_bricks=3, axis="X", mat_name="BROWN")
-    # Corner dark log posts
-    for z in range(1, 10, 3):
-        add_single_brick(-4, -3, z, 1, 1, height_plates=3, mat_name="DARK_BROWN", studs=False)
-        add_single_brick(3, -3, z, 1, 1, height_plates=3, mat_name="DARK_BROWN", studs=False)
-        add_single_brick(-4, 2, z, 1, 1, height_plates=3, mat_name="DARK_BROWN", studs=False)
-        add_single_brick(3, 2, z, 1, 1, height_plates=3, mat_name="DARK_BROWN", studs=False)
+    # Reddish Brown Timber Log Walls (16x12 studs, 6 bricks tall)
+    add_brick_wall(-8, -6, 2, 16, 12, height_bricks=6, axis="X", mat_name="BROWN")
+    # Corner dark log posts (2x2 studs)
+    for z in range(2, 20, 6):
+        add_single_brick(-8, -6, z, 2, 2, height_plates=6, mat_name="DARK_BROWN", studs=False)
+        add_single_brick(6, -6, z, 2, 2, height_plates=6, mat_name="DARK_BROWN", studs=False)
+        add_single_brick(-8, 4, z, 2, 2, height_plates=6, mat_name="DARK_BROWN", studs=False)
+        add_single_brick(6, 4, z, 2, 2, height_plates=6, mat_name="DARK_BROWN", studs=False)
 
     # Archery Training Dummy with Target Decal
-    add_cylinder_brick(2.5, -3.8, 1, radius_studs=0.25, height_plates=5, mat_name="BROWN", stud=False)
-    add_decal_tile(3.0 * U, -3.8 * U - 0.05, 5 * PLATE_H, 1.2, 1.2, "DECAL_TARGET", normal="-Y")
+    add_cylinder_brick(5.0, -7.5, 2, radius_studs=0.5, height_plates=9, mat_name="BROWN", stud=False)
+    add_decal_tile(6.0 * U, -7.5 * U - 0.05, 9 * PLATE_H, 1.4, 1.4, "DECAL_TARGET", normal="-Y")
 
     # Front Entrance Door Decal & Dragon Shield
-    add_decal_tile(-1.0 * U, -3 * U - 0.05, 5 * PLATE_H, 1.8, 2.0, "DECAL_DOOR", normal="-Y")
-    add_decal_tile(-3.0 * U, -3 * U - 0.05, 6 * PLATE_H, 1.3, 1.3, "DECAL_SHIELD", normal="-Y")
+    add_decal_tile(-2.0 * U, -6 * U - 0.05, 9 * PLATE_H, 2.0, 2.2, "DECAL_DOOR", normal="-Y")
+    add_decal_tile(-6.0 * U, -6 * U - 0.05, 11 * PLATE_H, 1.4, 1.4, "DECAL_SHIELD", normal="-Y")
 
-    # Dark Red & Red Slope Roof (10x8 studs, z=10 to z=16)
-    for x in range(-5, 5):
-        add_slope_brick(x, -4, 10, 1, 1, slope_dir="-Y", height_plates=3, mat_name="DARK_RED")
-        add_slope_brick(x, 3, 10, 1, 1, slope_dir="+Y", height_plates=3, mat_name="DARK_RED")
+    # Dark Red & Red Slope Roof (20x16 studs, z=20 to z=30)
+    for x in range(-10, 10, 2):
+        add_slope_brick(x, -8, 20, 2, 2, slope_dir="-Y", height_plates=4, mat_name="DARK_RED")
+        add_slope_brick(x, 6, 20, 2, 2, slope_dir="+Y", height_plates=4, mat_name="DARK_RED")
     # Central Ridge Beam
-    add_single_brick(-4, -1, 13, 8, 2, height_plates=3, mat_name="RED", studs=True)
+    add_single_brick(-8, -2, 26, 16, 4, height_plates=4, mat_name="RED", studs=True)
 
     # Observation Loft & Banner Flagpole
-    add_crenellation(-1, -1, 16, 2, 2, mat_name="STONE_GREY")
-    add_cylinder_brick(0, 0, 18, radius_studs=0.1, height_plates=6, mat_name="GOLD", stud=False)
-    add_single_brick(0, 0, 22, 2, 1, height_plates=2, mat_name="RED", studs=False)
+    add_crenellation(-2, -2, 30, 4, 4, mat_name="STONE_GREY")
+    add_cylinder_brick(0, 0, 34, radius_studs=0.2, height_plates=10, mat_name="GOLD", stud=False)
+    add_single_brick(0, 0, 40, 4, 1, height_plates=4, mat_name="RED", studs=False)
 
     export_scene(output_path, target_height=6.0)
 
 # =========================================================================
-# 4. LEGO GUARD WATCHTOWER
+# 4. LEGO GUARD WATCHTOWER (50% Smaller Bricks)
 # =========================================================================
 def build_lego_tower(output_path: str):
     reset_scene()
     init_materials()
 
-    # Dark Stone Base (6x6 studs)
-    add_single_brick(-3, -3, 0, 6, 6, height_plates=1, mat_name="DARK_GREY", studs=True)
+    # Dark Stone Base (12x12 studs)
+    add_single_brick(-6, -6, 0, 12, 12, height_plates=2, mat_name="DARK_GREY", studs=True)
 
-    # Tower Shaft: 4x4 studs rising 7 bricks tall (21 plates!)
-    add_brick_wall(-2, -2, 1, 4, 4, height_bricks=7, axis="X", mat_name="STONE_GREY")
-    # Dark grey corner quoin stones
-    for z in range(1, 21, 6):
-        add_single_brick(-2, -2, z, 1, 1, height_plates=3, mat_name="DARK_GREY", studs=False)
-        add_single_brick(1, -2, z, 1, 1, height_plates=3, mat_name="DARK_GREY", studs=False)
-        add_single_brick(-2, 1, z, 1, 1, height_plates=3, mat_name="DARK_GREY", studs=False)
-        add_single_brick(1, 1, z, 1, 1, height_plates=3, mat_name="DARK_GREY", studs=False)
+    # Tower Shaft: 8x8 studs rising 14 bricks tall (42 plates!)
+    add_brick_wall(-4, -4, 2, 8, 8, height_bricks=14, axis="X", mat_name="STONE_GREY")
+    # Dark grey corner quoin stones (2x2 studs)
+    for z in range(2, 42, 12):
+        add_single_brick(-4, -4, z, 2, 2, height_plates=6, mat_name="DARK_GREY", studs=False)
+        add_single_brick(2, -4, z, 2, 2, height_plates=6, mat_name="DARK_GREY", studs=False)
+        add_single_brick(-4, 2, z, 2, 2, height_plates=6, mat_name="DARK_GREY", studs=False)
+        add_single_brick(2, 2, z, 2, 2, height_plates=6, mat_name="DARK_GREY", studs=False)
 
     # Front Arched Arrow Slit Window & Shield
-    add_decal_tile(0.0, -2 * U - 0.05, 12 * PLATE_H, 1.3, 1.3, "DECAL_WINDOW", normal="-Y")
-    add_decal_tile(0.0, -2 * U - 0.05, 6 * PLATE_H, 1.2, 1.2, "DECAL_SHIELD", normal="-Y")
+    add_decal_tile(0.0, -4 * U - 0.05, 24 * PLATE_H, 1.4, 1.4, "DECAL_WINDOW", normal="-Y")
+    add_decal_tile(0.0, -4 * U - 0.05, 12 * PLATE_H, 1.3, 1.3, "DECAL_SHIELD", normal="-Y")
 
-    # Overhanging Corbel Plate (6x6 studs, z=22)
-    add_single_brick(-3, -3, 22, 6, 6, height_plates=1, mat_name="DARK_GREY", studs=False)
+    # Overhanging Corbel Plate (12x12 studs, z=44)
+    add_single_brick(-6, -6, 44, 12, 12, height_plates=2, mat_name="DARK_GREY", studs=False)
 
-    # 360-Degree Battlement Parapet with Crenellations (6x6 studs, z=23)
-    add_crenellation(-3, -3, 23, 6, 6, mat_name="STONE_GREY")
+    # 360-Degree Battlement Parapet with Crenellations (12x12 studs, z=46)
+    add_crenellation(-6, -6, 46, 12, 12, mat_name="STONE_GREY")
 
     # Signal Fire Brazier with vibrant Trans-Orange Flame Piece
-    add_cylinder_brick(-0.5, -0.5, 23, radius_studs=0.6, height_plates=2, mat_name="DARK_GREY", stud=False)
-    add_cone(0.0, 0.0, 25 * PLATE_H, 0.40, 1.4, "FLAME")
+    add_cylinder_brick(-1, -1, 46, radius_studs=1.2, height_plates=4, mat_name="DARK_GREY", stud=False)
+    add_cone(0.0, 0.0, 50 * PLATE_H, 0.45, 1.8, "FLAME")
 
     export_scene(output_path, target_height=7.5)
 
 # =========================================================================
-# 5. LEGO NATURE ASSETS
+# 5. LEGO NATURE ASSETS (50% Smaller Bricks)
 # =========================================================================
 def build_lego_tree(output_path: str):
     reset_scene()
     init_materials()
 
     # Brown Trunk (cylinder bricks)
-    add_cylinder_brick(-0.5, -0.5, 0, radius_studs=0.4, height_plates=5, mat_name="BROWN", stud=False)
+    add_cylinder_brick(-1, -1, 0, radius_studs=0.8, height_plates=8, mat_name="BROWN", stud=False)
 
-    # Tiered 8-sided faceted foliage plates with studs (Classic LEGO Pine Tree!)
-    # Tier 1 (Wide 6x6 green base with corner chamfers)
-    add_single_brick(-3, -3, 5, 6, 6, height_plates=2, mat_name="GREEN", studs=True)
-    # Tier 2 (5x5 green tier)
-    add_single_brick(-2, -2, 7, 4, 4, height_plates=2, mat_name="GREEN", studs=True)
-    # Tier 3 (4x4 bright green / lime highlight tier)
-    add_single_brick(-2, -2, 9, 4, 4, height_plates=2, mat_name="LIME", studs=True)
-    # Tier 4 (2x2 green peak)
-    add_single_brick(-1, -1, 11, 2, 2, height_plates=2, mat_name="GREEN", studs=True)
+    # 6 Tiered Faceted Foliage Plates with Studs (Classic LEGO Pine Tree!)
+    # Tier 1 (12x12 studs green base)
+    add_single_brick(-6, -6, 8, 12, 12, height_plates=3, mat_name="GREEN", studs=True)
+    # Tier 2 (10x10 studs)
+    add_single_brick(-5, -5, 11, 10, 10, height_plates=3, mat_name="GREEN", studs=True)
+    # Tier 3 (8x8 studs bright green / lime highlight)
+    add_single_brick(-4, -4, 14, 8, 8, height_plates=3, mat_name="LIME", studs=True)
+    # Tier 4 (6x6 studs)
+    add_single_brick(-3, -3, 17, 6, 6, height_plates=3, mat_name="GREEN", studs=True)
+    # Tier 5 (4x4 studs lime)
+    add_single_brick(-2, -2, 20, 4, 4, height_plates=3, mat_name="LIME", studs=True)
+    # Tier 6 (2x2 studs green peak)
+    add_single_brick(-1, -1, 23, 2, 2, height_plates=2, mat_name="GREEN", studs=True)
     # Top Pine Cone Spire
-    add_cone(0.0, 0.0, 13 * PLATE_H, 0.45, 1.5, "GREEN")
+    add_cone(0.0, 0.0, 25 * PLATE_H, 0.50, 1.8, "GREEN")
 
     export_scene(output_path, target_height=3.6)
 
@@ -550,13 +532,13 @@ def build_lego_stone(output_path: str):
     reset_scene()
     init_materials()
 
-    # Chunky Faceted Boulder made of slope bricks and plates
-    add_single_brick(-2, -2, 0, 4, 4, height_plates=1, mat_name="DARK_GREY", studs=True)
-    add_slope_brick(-2, -2, 1, 2, 2, slope_dir="-Y", height_plates=3, mat_name="STONE_GREY")
-    add_slope_brick(0, -2, 1, 2, 2, slope_dir="+X", height_plates=3, mat_name="DARK_GREY")
-    add_slope_brick(-2, 0, 1, 2, 2, slope_dir="-X", height_plates=3, mat_name="DARK_GREY")
-    add_slope_brick(0, 0, 1, 2, 2, slope_dir="+Y", height_plates=3, mat_name="STONE_GREY")
-    add_single_brick(-1, -1, 4, 2, 2, height_plates=2, mat_name="STONE_GREY", studs=True)
+    # Chunky Faceted Boulder made of slope bricks and plates (8x8 studs)
+    add_single_brick(-4, -4, 0, 8, 8, height_plates=2, mat_name="DARK_GREY", studs=True)
+    add_slope_brick(-4, -4, 2, 4, 4, slope_dir="-Y", height_plates=5, mat_name="STONE_GREY")
+    add_slope_brick(0, -4, 2, 4, 4, slope_dir="+X", height_plates=5, mat_name="DARK_GREY")
+    add_slope_brick(-4, 0, 2, 4, 4, slope_dir="-X", height_plates=5, mat_name="DARK_GREY")
+    add_slope_brick(0, 0, 2, 4, 4, slope_dir="+Y", height_plates=5, mat_name="STONE_GREY")
+    add_single_brick(-2, -2, 7, 4, 4, height_plates=3, mat_name="STONE_GREY", studs=True)
 
     export_scene(output_path, target_height=1.8)
 
@@ -564,16 +546,16 @@ def build_lego_gold(output_path: str):
     reset_scene()
     init_materials()
 
-    # Dark stone rock vein
-    add_single_brick(-2, -2, 0, 4, 4, height_plates=1, mat_name="DARK_GREY", studs=True)
-    add_slope_brick(-2, -2, 1, 2, 2, slope_dir="-Y", height_plates=3, mat_name="DARK_GREY")
-    add_slope_brick(0, 0, 1, 2, 2, slope_dir="+Y", height_plates=3, mat_name="DARK_GREY")
+    # Dark stone rock vein (8x8 studs)
+    add_single_brick(-4, -4, 0, 8, 8, height_plates=2, mat_name="DARK_GREY", studs=True)
+    add_slope_brick(-4, -4, 2, 4, 4, slope_dir="-Y", height_plates=5, mat_name="DARK_GREY")
+    add_slope_brick(0, 0, 2, 4, 4, slope_dir="+Y", height_plates=5, mat_name="DARK_GREY")
 
     # Sparkling Pearl Gold Bricks, Studs, and Crystal Cone
-    add_single_brick(-1, -1, 1, 2, 2, height_plates=3, mat_name="GOLD", studs=True)
-    add_cylinder_brick(0.2, -0.8, 4, radius_studs=0.3, height_plates=2, mat_name="GOLD", stud=True)
-    add_cylinder_brick(-0.8, 0.2, 4, radius_studs=0.3, height_plates=2, mat_name="GOLD", stud=True)
-    add_cone(0.0, 0.0, 6 * PLATE_H, 0.38, 1.0, "GOLD")
+    add_single_brick(-2, -2, 2, 4, 4, height_plates=5, mat_name="GOLD", studs=True)
+    add_cylinder_brick(0.5, -1.5, 7, radius_studs=0.6, height_plates=3, mat_name="GOLD", stud=True)
+    add_cylinder_brick(-1.5, 0.5, 7, radius_studs=0.6, height_plates=3, mat_name="GOLD", stud=True)
+    add_cone(0.0, 0.0, 10 * PLATE_H, 0.45, 1.2, "GOLD")
 
     export_scene(output_path, target_height=1.6)
 
@@ -581,17 +563,18 @@ def build_lego_berry_bush(output_path: str):
     reset_scene()
     init_materials()
 
-    # Green leaf plates
-    add_single_brick(-2, -2, 0, 4, 4, height_plates=2, mat_name="GREEN", studs=True)
-    add_single_brick(-1, -1, 2, 2, 2, height_plates=2, mat_name="LIME", studs=True)
+    # Green leaf plates (8x8 studs)
+    add_single_brick(-4, -4, 0, 8, 8, height_plates=3, mat_name="GREEN", studs=True)
+    add_single_brick(-2, -2, 3, 4, 4, height_plates=3, mat_name="LIME", studs=True)
 
     # Bright Red 1x1 Round Stud Berries
     berry_coords = [
-        (-1.2, -1.2, 2), (1.2, -1.2, 2), (-1.2, 1.2, 2), (1.2, 1.2, 2),
-        (-0.5, 0.5, 4), (0.5, -0.5, 4), (0.0, 0.0, 4)
+        (-2.5, -2.5, 3), (2.5, -2.5, 3), (-2.5, 2.5, 3), (2.5, 2.5, 3),
+        (-1.0, 1.0, 6), (1.0, -1.0, 6), (0.0, 0.0, 6),
+        (-2.0, 0.0, 3), (2.0, 0.0, 3), (0.0, -2.0, 3), (0.0, 2.0, 3)
     ]
     for bx, by, bz in berry_coords:
-        add_cylinder_brick(bx, by, bz, radius_studs=0.22, height_plates=1, mat_name="RED", stud=True)
+        add_cylinder_brick(bx, by, bz, radius_studs=0.4, height_plates=2, mat_name="RED", stud=True)
 
     export_scene(output_path, target_height=1.4)
 
@@ -606,13 +589,11 @@ def export_scene(output_path: str, target_height: float):
         print(f"Error: No meshes to export for {output_path}")
         return
 
-    # Join into a single unified object with preserved material slots
     bpy.context.view_layer.objects.active = selected_objs[0]
     bpy.ops.object.join()
     unified_obj = bpy.context.active_object
     unified_obj.name = "LegoModel"
 
-    # Normalize height and center at ground base (Z=0 at bottom)
     bbox_corners = [unified_obj.matrix_world @ mathutils.Vector(corner) for corner in unified_obj.bound_box]
     min_z = min(c.z for c in bbox_corners)
     max_z = max(c.z for c in bbox_corners)
@@ -650,42 +631,42 @@ if __name__ == "__main__":
     target = args[0] if len(args) > 0 else "all"
 
     print("========================================")
-    print("      LEGO ARCHITECTURAL ASSEMBLER      ")
+    print("      MICRO-LEGO ARCHITECTURE ASSEMBLER ")
     print("========================================")
 
     models_dir = "/Users/cuong.le/Document/build-the-game/assets/models"
 
     if target in ["all", "town_center"]:
-        print("Assembling LEGO Imperial Town Center...")
+        print("Assembling 50% Finer LEGO Imperial Town Center...")
         build_lego_town_center(f"{models_dir}/pixel_town_center.glb")
 
     if target in ["all", "house"]:
-        print("Assembling LEGO Pagoda House...")
+        print("Assembling 50% Finer LEGO Pagoda House...")
         build_lego_house(f"{models_dir}/pixel_house.glb")
 
     if target in ["all", "barracks"]:
-        print("Assembling LEGO Barracks...")
+        print("Assembling 50% Finer LEGO Barracks...")
         build_lego_barracks(f"{models_dir}/pixel_barracks.glb")
 
     if target in ["all", "tower"]:
-        print("Assembling LEGO Guard Watchtower...")
+        print("Assembling 50% Finer LEGO Guard Watchtower...")
         build_lego_tower(f"{models_dir}/pixel_tower.glb")
         os.system(f"cp {models_dir}/pixel_tower.glb {models_dir}/pixel_guard_tower.glb")
 
     if target in ["all", "nature", "tree"]:
-        print("Assembling LEGO Pine Tree...")
+        print("Assembling 50% Finer LEGO Pine Tree...")
         build_lego_tree(f"{models_dir}/pixel_tree.glb")
 
     if target in ["all", "nature", "stone"]:
-        print("Assembling LEGO Boulder...")
+        print("Assembling 50% Finer LEGO Boulder...")
         build_lego_stone(f"{models_dir}/pixel_stone.glb")
 
     if target in ["all", "nature", "gold"]:
-        print("Assembling LEGO Gold Vein...")
+        print("Assembling 50% Finer LEGO Gold Vein...")
         build_lego_gold(f"{models_dir}/pixel_gold.glb")
 
     if target in ["all", "nature", "food"]:
-        print("Assembling LEGO Berry Bush...")
+        print("Assembling 50% Finer LEGO Berry Bush...")
         build_lego_berry_bush(f"{models_dir}/pixel_food.glb")
 
-    print("\nAll LEGO assemblies generated successfully!")
+    print("\nAll 50% finer LEGO assemblies generated successfully!")
