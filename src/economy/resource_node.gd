@@ -24,14 +24,18 @@ func setup(type: String, pos: Vector3, amount: int) -> void:
 func build_visual() -> void:
 	match resource_type:
 		"wood":
-			var pine_path = "res://assets/models/pine_tree.glb"
-			if ResourceLoader.exists(pine_path):
-				var p_res = load(pine_path)
+			var tree_path = "res://assets/models/pixel_tree.glb"
+			if not ResourceLoader.exists(tree_path):
+				tree_path = "res://assets/models/pine_tree.glb"
+
+			if ResourceLoader.exists(tree_path):
+				var p_res = load(tree_path)
 				if p_res:
 					var p_inst = p_res.instantiate()
-					var rand_scale = randf_range(0.85, 1.15)
+					var rand_scale = randf_range(0.95, 1.15)
 					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
 					p_inst.rotation.y = randf() * TAU
+					enable_vertex_colors(p_inst)
 					add_child(p_inst)
 					return
 
@@ -164,3 +168,13 @@ func harvest(amount: int) -> int:
 	if amount_remaining <= 0:
 		queue_free()
 	return harvested
+
+func enable_vertex_colors(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		var mat = StandardMaterial3D.new()
+		mat.vertex_color_use_as_albedo = true
+		mat.roughness = 0.8
+		mi.material_override = mat
+	for child in node.get_children():
+		enable_vertex_colors(child)
