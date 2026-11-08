@@ -340,6 +340,11 @@ func die() -> void:
 func enable_vertex_colors(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mi: MeshInstance3D = node
+		if mi.mesh and mi.mesh.get_surface_count() > 0:
+			var existing_mat = mi.get_active_material(0)
+			if existing_mat:
+				# Mesh already has imported PBR/LEGO materials
+				return
 		var mat = StandardMaterial3D.new()
 		mat.vertex_color_use_as_albedo = true
 		mat.roughness = 0.8
