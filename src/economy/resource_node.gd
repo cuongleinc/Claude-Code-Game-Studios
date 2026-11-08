@@ -34,7 +34,7 @@ func build_visual() -> void:
 					var p_inst = p_res.instantiate()
 					var rand_scale = randf_range(0.95, 1.15)
 					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
-					p_inst.rotation.y = randf() * TAU
+					p_inst.rotation.y = randf_range(-0.30, 0.30)
 					enable_vertex_colors(p_inst)
 					add_child(p_inst)
 					return
@@ -111,7 +111,7 @@ func build_visual() -> void:
 					var p_inst = p_res.instantiate()
 					var rand_scale = randf_range(0.95, 1.15)
 					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
-					p_inst.rotation.y = randf() * TAU
+					p_inst.rotation.y = randf_range(-0.30, 0.30)
 					enable_vertex_colors(p_inst)
 					add_child(p_inst)
 					return
@@ -149,7 +149,7 @@ func build_visual() -> void:
 					var p_inst = p_res.instantiate()
 					var rand_scale = randf_range(0.95, 1.15)
 					p_inst.scale = Vector3(rand_scale, rand_scale, rand_scale)
-					p_inst.rotation.y = randf() * TAU
+					p_inst.rotation.y = randf_range(-0.30, 0.30)
 					enable_vertex_colors(p_inst)
 					add_child(p_inst)
 					return
